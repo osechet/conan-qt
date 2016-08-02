@@ -10,13 +10,16 @@ class QtConan(ConanFile):
     ZIP_FOLDER_NAME = "qt-everywhere-opensource-src-%s" % version
     generators = "gcc"
     settings = "os", "arch", "compiler", "build_type"
+    options = {"shared": [True, False]}
+    default_options = "shared=True"
     url="http://github.com/osechet/conan-qt"
     license="http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
 
     def system_requirements(self):
+        # TODO: check if jom is available on Windows
         if self.settings.os == "Linux": # Further check for debian based missing
-            self.run("sudo apt-get install -y libgl1-mesa-dev libxcb1 libxcb1-dev "
+            self.run("sudo apt-get update; sudo apt-get install -y libgl1-mesa-dev libxcb1 libxcb1-dev "
                      "libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev "
                      "libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev "
                      "libxcb-icccm4 libxcb-icccm4-dev libxcb-sync1 libxcb-sync-dev "
@@ -44,16 +47,23 @@ class QtConan(ConanFile):
         """
         if self.settings.os == "Windows":
             env = ConfigureEnvironment(self.deps_cpp_info, self.settings)
-            # todo:
+            # TODO:
             # update PATH to contains qtbase\bin and gnuwin32\bin
             # set QMAKESPEC to correct platform
 
+        args = ["-opensource", "-confirm-license", "-no-compile-examples", "-nomake", "tests", "-prefix", "_dist"]
+        if not self.options.shared:
+            args.insert(0, "-static")
+
         if self.settings.os == "Windows":
-            self.run("cd %s && configure -opensource -confirm-license -silent -opengl dynamic -no-compile-examples -nomake tests -prefix dist" % (self.ZIP_FOLDER_NAME))
+            args += ["-opengl", "dynamic"]
+            self.run("cd %s && configure %s" % (self.ZIP_FOLDER_NAME, " ".join(args)))
         elif self.settings.os == "Linux":
-            self.run("cd %s && ./configure -opensource -confirm-license -silent -xcb -no-compile-examples -nomake tests -prefix dist" % (self.ZIP_FOLDER_NAME))
+            args += ["-silent", "-xcb"]
+            self.run("cd %s && ./configure %s" % (self.ZIP_FOLDER_NAME, " ".join(args)))
         else:
-            self.run("cd %s && ./configure -opensource -confirm-license -silent -no-compile-examples -nomake tests -prefix dist" % (self.ZIP_FOLDER_NAME))
+            args += ["-silent"]
+            self.run("cd %s && ./configure %s" % (self.ZIP_FOLDER_NAME, " ".join(args)))
         
         if self.settings.os == "Windows":
             self.run("cd %s && jom" % (self.ZIP_FOLDER_NAME))
@@ -74,16 +84,22 @@ class QtConan(ConanFile):
             project, this method is called to create a defined structure:
         """
         
-        self.copy("*", dst="include", src="%s/qtbase/dist/include" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="bin", src="%s/qtbase/dist/bin" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="lib", src="%s/qtbase/dist/lib" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="doc", src="%s/qtbase/dist/doc" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="examples", src="%s/qtbase/dist/examples" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="mkspecs", src="%s/qtbase/dist/mkspecs" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="phrasebooks", src="%s/qtbase/dist/phrasebooks" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="plugins", src="%s/qtbase/dist/plugins" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="qml", src="%s/qtbase/dist/qml" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="translations", src="%s/qtbase/dist/translations" % (self.ZIP_FOLDER_NAME))
+        # TODO: find why the dist directory is not the same
+        if self.settings.os == "Windows":
+            dirstdir = "%s/qtbase/bin/_dist" % (self.ZIP_FOLDER_NAME)
+        else:
+            dirstdir = "%s/qtbase/_dist" % (self.ZIP_FOLDER_NAME)
+        
+        self.copy("*", dst="include", src="%s/include" % (dirstdir))
+        self.copy(pattern="*", dst="bin", src="%s/bin" % (dirstdir))
+        self.copy(pattern="*", dst="lib", src="%s/lib" % (dirstdir))
+        self.copy(pattern="*", dst="doc", src="%s/doc" % (dirstdir))
+        self.copy(pattern="*", dst="examples", src="%s/examples" % (dirstdir))
+        self.copy(pattern="*", dst="mkspecs", src="%s/mkspecs" % (dirstdir))
+        self.copy(pattern="*", dst="phrasebooks", src="%s/phrasebooks" % (dirstdir))
+        self.copy(pattern="*", dst="plugins", src="%s/plugins" % (dirstdir))
+        self.copy(pattern="*", dst="qml", src="%s/qml" % (dirstdir))
+        self.copy(pattern="*", dst="translations", src="%s/translations" % (dirstdir))
 
     def package_info(self):
         libs = ['Qt53DCore', 'Qt53DInput', 'Qt53DLogic',
