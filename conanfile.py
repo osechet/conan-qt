@@ -12,6 +12,7 @@ class QtConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     url="http://github.com/osechet/conan-qt"
     license="http://doc.qt.io/qt-5/lgpl.html"
+    short_paths = True
 
     def system_requirements(self):
         if self.settings.os == "Linux": # Further check for debian based missing
@@ -85,26 +86,7 @@ class QtConan(ConanFile):
         self.copy(pattern="*", dst="translations", src="%s/qtbase/dist/translations" % (self.ZIP_FOLDER_NAME))
 
     def package_info(self):
-        if self.settings.os == "Windows":
-            if self.settings.build_type == "Debug":
-                self.cpp_info.libs = ['Qt53DCored', 'Qt53DInputd', 'Qt53DLogicd',
-                'Qt53DQuickInputd', 'Qt53DQuickRenderd', 'Qt53DQuickd',
-                'Qt53DRenderd', 'Qt5Bluetoothd', 'Qt5CLucened',
-                'Qt5Concurrentd', 'Qt5Cored', 'Qt5DBusd',
-                'Qt5DesignerComponentsd', 'Qt5Designerd', 'Qt5Guid',
-                'Qt5Helpd', 'Qt5LabsTemplatesd', 'Qt5Locationd',
-                'Qt5MultimediaQuick_pd', 'Qt5Multimediad', 'Qt5MultimediaWidgetsd',
-                'Qt5Networkd', 'Qt5Nfcd', 'Qt5OpenGLd',
-                'Qt5Positioningd', 'Qt5PrintSupportd', 'Qt5Qmld',
-                'Qt5QuickParticlesd', 'Qt5Quickd', 'Qt5QuickTestd',
-                'Qt5QuickWidgetsd', 'Qt5Scriptd', 'Qt5ScriptToolsd',
-                'Qt5Sensorsd', 'Qt5SerialBusd', 'Qt5SerialPortd',
-                'Qt5Sqld', 'Qt5Svgd', 'Qt5Testd',
-                'Qt5WebChanneld', 'Qt5WebSocketsd', 'Qt5Widgetsd',
-                'Qt5X11Extrasd', 'Qt5XcbQpad', 'Qt5XmlPatternsd',
-                'Qt5Xmld']
-            else:
-                self.cpp_info.libs = ['Qt53DCore', 'Qt53DInput', 'Qt53DLogic',
+        libs = ['Qt53DCore', 'Qt53DInput', 'Qt53DLogic',
                 'Qt53DQuickInput', 'Qt53DQuickRender', 'Qt53DQuick',
                 'Qt53DRender', 'Qt5Bluetooth', 'Qt5CLucene',
                 'Qt5Concurrent', 'Qt5Core', 'Qt5DBus',
@@ -120,21 +102,7 @@ class QtConan(ConanFile):
                 'Qt5WebChannel', 'Qt5WebSockets', 'Qt5Widgets',
                 'Qt5X11Extras', 'Qt5XcbQpa', 'Qt5XmlPatterns',
                 'Qt5Xml']
+        if self.settings.os == "Windows" and self.settings.build_type == "Debug":
+            self.cpp_info.libs = ["%sd" % lib for lib in libs]
         else:
-            self.cpp_info.libs = ['Qt53DCore', 'Qt53DInput', 'Qt53DLogic',
-                'Qt53DQuickInput', 'Qt53DQuickRender', 'Qt53DQuick',
-                'Qt53DRender', 'Qt5Bluetooth', 'Qt5CLucene',
-                'Qt5Concurrent', 'Qt5Core', 'Qt5DBus',
-                'Qt5DesignerComponents', 'Qt5Designer', 'Qt5Gui',
-                'Qt5Help', 'Qt5LabsTemplates', 'Qt5Location',
-                'Qt5MultimediaQuick_p', 'Qt5Multimedia', 'Qt5MultimediaWidgets',
-                'Qt5Network', 'Qt5Nfc', 'Qt5OpenGL',
-                'Qt5Positioning', 'Qt5PrintSupport', 'Qt5Qml',
-                'Qt5QuickParticles', 'Qt5Quick', 'Qt5QuickTest',
-                'Qt5QuickWidgets', 'Qt5Script', 'Qt5ScriptTools',
-                'Qt5Sensors', 'Qt5SerialBus', 'Qt5SerialPort',
-                'Qt5Sql', 'Qt5Svg', 'Qt5Test',
-                'Qt5WebChannel', 'Qt5WebSockets', 'Qt5Widgets',
-                'Qt5X11Extras', 'Qt5XcbQpa', 'Qt5XmlPatterns',
-                'Qt5Xml']
-
+            self.cpp_info.libs = libs
