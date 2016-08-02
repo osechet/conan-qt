@@ -1,6 +1,6 @@
 from conans import ConanFile
 import os, sys
-from conans.tools import download, unzip, untargz, replace_in_file
+from conans.tools import download, unzip, untargz, replace_in_file, vcvars_command
 from conans import CMake, ConfigureEnvironment
 
 
@@ -8,7 +8,6 @@ class QtConan(ConanFile):
     name = "Qt"
     version = "5.6.0"
     ZIP_FOLDER_NAME = "qt-everywhere-opensource-src-%s" % version
-    generators = "gcc"
     settings = "os", "arch", "compiler", "build_type"
     url="http://github.com/osechet/conan-qt"
     license="http://doc.qt.io/qt-5/lgpl.html"
@@ -42,23 +41,22 @@ class QtConan(ConanFile):
         """ Define your project building. You decide the way of building it
             to reuse it later in any other project.
         """
-        if self.settings.os == "Windows":
-            env = ConfigureEnvironment(self.deps_cpp_info, self.settings)
-            # todo:
-            # update PATH to contains qtbase\bin and gnuwin32\bin
-            # set QMAKESPEC to correct platform
+        debug = "-debug" if self.settings.build_type == "Debug" else "-release"
+        base_command = "configure -opensource -confirm-license -nomake examples -nomake tests -prefix dist %s" % debug
 
         if self.settings.os == "Windows":
-            self.run("cd %s && configure -opensource -confirm-license -silent -opengl dynamic -no-compile-examples -nomake tests -prefix dist" % (self.ZIP_FOLDER_NAME))
-        elif self.settings.os == "Linux":
-            self.run("cd %s && ./configure -opensource -confirm-license -silent -xcb -no-compile-examples -nomake tests -prefix dist" % (self.ZIP_FOLDER_NAME))
+            vcvars = vcvars_command(self.settings)
+            set_env = 'SET PATH={dir}/qtbase/bin;{dir}\gnuwin32\bin;%PATH%'.format(dir=self.conanfile_directory)
+            command = base_command + " -opengl dynamic"
+
+            self.run("cd %s && %s && %s && %s" % (self.ZIP_FOLDER_NAME, set_env, vcvars, command))
+            self.run("cd %s && %s && nmake" % (self.ZIP_FOLDER_NAME, vcvars))
+            self.run("cd %s && %s && nmake install" % (self.ZIP_FOLDER_NAME, vcvars))
         else:
-            self.run("cd %s && ./configure -opensource -confirm-license -silent -no-compile-examples -nomake tests -prefix dist" % (self.ZIP_FOLDER_NAME))
-        
-        if self.settings.os == "Windows":
-            self.run("cd %s && jom" % (self.ZIP_FOLDER_NAME))
-            self.run("cd %s && jom install" % (self.ZIP_FOLDER_NAME))
-        else:
+            command = base_command + " -silent"
+            if self.settings.os == "Linux":
+                command += " -xcb"
+  
             concurrency = 1
             try:
                 import multiprocessing
@@ -66,6 +64,7 @@ class QtConan(ConanFile):
             except (ImportError, NotImplementedError):
                 pass
 
+            self.run("cd %s && ./%s" % (self.ZIP_FOLDER_NAME, command))
             self.run("cd %s && make -j %s" % (self.ZIP_FOLDER_NAME, concurrency))
             self.run("cd %s && make install" % (self.ZIP_FOLDER_NAME))
 
