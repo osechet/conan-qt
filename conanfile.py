@@ -6,8 +6,8 @@ from conans import CMake, ConfigureEnvironment
 
 class QtConan(ConanFile):
     name = "Qt"
-    version = "5.6.0"
-    ZIP_FOLDER_NAME = "qt-everywhere-opensource-src-%s" % version
+    version = "5.6.1-1"
+    ZIP_FOLDER_NAME = "qt-everywhere-opensource-src-5.6.1"
     settings = "os", "arch", "compiler", "build_type"
     url="http://github.com/osechet/conan-qt"
     license="http://doc.qt.io/qt-5/lgpl.html"
@@ -24,13 +24,16 @@ class QtConan(ConanFile):
                      "libxcb-glx0-dev libxcb-xinerama0 libxcb-xinerama0-dev")
 
     def source(self):
+        major = ".".join(self.version.split(".")[:2])
+        url = "http://download.qt.io/official_releases/qt/{major}/{v}/single/qt-everywhere-opensource-src-{v}".format(major=major, v=self.version)
         if self.settings.os == "Windows":
             zip_name = "qt.zip"
-            download("http://download.qt.io/official_releases/qt/5.6/5.6.0/single/qt-everywhere-opensource-src-5.6.0.zip", zip_name)
-        elif self.settings.os == "Linux":
+            url += ".zip"
+        else:
             zip_name = "qt.tar.gz"
-            download("http://download.qt.io/official_releases/qt/5.6/5.6.0/single/qt-everywhere-opensource-src-5.6.0.tar.gz", zip_name)
+            url += ".tar.gz"
 
+        download(url, zip_name)
         unzip(zip_name)
         os.unlink(zip_name)
             
@@ -46,8 +49,16 @@ class QtConan(ConanFile):
 
         if self.settings.os == "Windows":
             vcvars = vcvars_command(self.settings)
-            set_env = 'SET PATH={dir}/qtbase/bin;{dir}\gnuwin32\bin;%PATH%'.format(dir=self.conanfile_directory)
+            set_env = 'SET PATH={dir}/qtbase/bin;{dir}/gnuwin32/bin;%PATH%'.format(dir=self.conanfile_directory)
             command = base_command + " -opengl dynamic"
+            # it seems not enough to set the vcvars for older versions, it works fine with MSVC2015 without -platform
+            if self.settings.compiler == "Visual Studio":
+                if self.settings.compiler.version == "12":
+                    command += " -platform win32-msvc2013"
+                if self.settings.compiler.version == "11":
+                    command += " -platform win32-msvc2012"
+                if self.settings.compiler.version == "10":
+                    command += " -platform win32-msvc2010"
 
             self.run("cd %s && %s && %s && %s" % (self.ZIP_FOLDER_NAME, set_env, vcvars, command))
             self.run("cd %s && %s && nmake" % (self.ZIP_FOLDER_NAME, vcvars))
@@ -72,17 +83,10 @@ class QtConan(ConanFile):
         """ Define your conan structure: headers, libs, bins and data. After building your
             project, this method is called to create a defined structure:
         """
-        
-        self.copy("*", dst="include", src="%s/qtbase/dist/include" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="bin", src="%s/qtbase/dist/bin" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="lib", src="%s/qtbase/dist/lib" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="doc", src="%s/qtbase/dist/doc" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="examples", src="%s/qtbase/dist/examples" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="mkspecs", src="%s/qtbase/dist/mkspecs" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="phrasebooks", src="%s/qtbase/dist/phrasebooks" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="plugins", src="%s/qtbase/dist/plugins" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="qml", src="%s/qtbase/dist/qml" % (self.ZIP_FOLDER_NAME))
-        self.copy(pattern="*", dst="translations", src="%s/qtbase/dist/translations" % (self.ZIP_FOLDER_NAME))
+        src = "%s/qtbase/dist" % (self.ZIP_FOLDER_NAME)
+        if self.settings.os == "Windows":
+            src = "%s/qtbase/bin/dist" % (self.ZIP_FOLDER_NAME)
+        self.copy(pattern="*", src=src)
 
     def package_info(self):
         libs = ['Qt53DCore', 'Qt53DInput', 'Qt53DLogic',
@@ -105,3 +109,7 @@ class QtConan(ConanFile):
             self.cpp_info.libs = ["%sd" % lib for lib in libs]
         else:
             self.cpp_info.libs = libs
+
+        if self.settings.os == "Windows":
+            # Some missing shared libs inside QML and others, but for the test it works
+            self.env_info.path.append(os.path.join(self.package_folder, "bin"))
