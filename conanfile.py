@@ -9,6 +9,8 @@ class QtConan(ConanFile):
     version = "5.6.1-1"
     ZIP_FOLDER_NAME = "qt-everywhere-opensource-src-5.6.1"
     settings = "os", "arch", "compiler", "build_type"
+    options = {"shared": [True, False]}
+    default_options = "shared=True"
     url="http://github.com/osechet/conan-qt"
     license="http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -49,30 +51,37 @@ class QtConan(ConanFile):
         """ Define your project building. You decide the way of building it
             to reuse it later in any other project.
         """
-        debug = "-debug" if self.settings.build_type == "Debug" else "-release"
-        base_command = "configure -opensource -confirm-license -nomake examples -nomake tests -prefix dist %s" % debug
+
+        args = ["-opensource", "-confirm-license", "-no-compile-examples", "-nomake tests", "-prefix _dist"]
+        if not self.options.shared:
+            args.insert(0, "-static")
+        if self.settings.build_type == "Debug":
+            args.append("-debug")
+        else:
+            args.append("-release")
 
         if self.settings.os == "Windows":
             vcvars = vcvars_command(self.settings)
             set_env = 'SET PATH={dir}/qtbase/bin;{dir}/gnuwin32/bin;%PATH%'.format(dir=self.conanfile_directory)
-            command = base_command + " -opengl dynamic"
+            args += ["-opengl dynamic"]
             # it seems not enough to set the vcvars for older versions, it works fine with MSVC2015 without -platform
             if self.settings.compiler == "Visual Studio":
                 if self.settings.compiler.version == "12":
-                    command += " -platform win32-msvc2013"
+                    args += ["-platform win32-msvc2013"]
                 if self.settings.compiler.version == "11":
-                    command += " -platform win32-msvc2012"
+                    args += ["-platform win32-msvc2012"]
                 if self.settings.compiler.version == "10":
-                    command += " -platform win32-msvc2010"
+                    args += ["-platform win32-msvc2010"]
 
-            self.run("cd %s && %s && %s && %s" % (self.ZIP_FOLDER_NAME, set_env, vcvars, command))
+            self.run("cd %s && %s && %s && configure %s" % (self.ZIP_FOLDER_NAME, set_env, vcvars, " ".join(args)))
             self.run("cd %s && %s && nmake" % (self.ZIP_FOLDER_NAME, vcvars))
             self.run("cd %s && %s && nmake install" % (self.ZIP_FOLDER_NAME, vcvars))
         else:
-            command = base_command + " -silent"
             if self.settings.os == "Linux":
-                command += " -xcb"
-  
+                args += ["-silent", "-xcb"]
+            else:
+                args += ["-silent"]
+
             concurrency = 1
             try:
                 import multiprocessing
@@ -80,7 +89,7 @@ class QtConan(ConanFile):
             except (ImportError, NotImplementedError):
                 pass
 
-            self.run("cd %s && ./%s" % (self.ZIP_FOLDER_NAME, command))
+            self.run("cd %s && ./configure %s" % (self.ZIP_FOLDER_NAME, " ".join(args)))
             self.run("cd %s && make -j %s" % (self.ZIP_FOLDER_NAME, concurrency))
             self.run("cd %s && make install" % (self.ZIP_FOLDER_NAME))
 
@@ -88,9 +97,9 @@ class QtConan(ConanFile):
         """ Define your conan structure: headers, libs, bins and data. After building your
             project, this method is called to create a defined structure:
         """
-        src = "%s/qtbase/dist" % (self.ZIP_FOLDER_NAME)
+        src = "%s/qtbase/_dist" % (self.ZIP_FOLDER_NAME)
         if self.settings.os == "Windows":
-            src = "%s/qtbase/bin/dist" % (self.ZIP_FOLDER_NAME)
+            src = "%s/qtbase/bin/_dist" % (self.ZIP_FOLDER_NAME)
         self.copy(pattern="*", src=src)
 
     def package_info(self):
