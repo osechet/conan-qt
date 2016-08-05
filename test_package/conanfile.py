@@ -7,8 +7,8 @@ username = os.getenv("CONAN_USERNAME", "osechet")
 
 class QtTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    requires = "Qt/5.6.0@%s/%s" % (username, channel)
-    generators = "cmake"
+    requires = "Qt/5.6.1-1@%s/%s" % (username, channel)
+    generators = "cmake", "virtualenv"
 
     def build(self):
         cmake = CMake(self.settings)
@@ -16,5 +16,9 @@ class QtTestConan(ConanFile):
         self.run("cmake --build . %s" % cmake.build_config)
 
     def test(self):
-        self.run("%s %s" % (os.sep.join([".", "bin", "helloworld"]), "conan"))
+        if self.settings.os == "Windows":
+            self.run("activate && %s %s" % (os.sep.join([".", "bin", "helloworld"]), "conan"))
+        else:
+            self.run("%s %s" % (os.sep.join([".", "bin", "helloworld"]), "conan"))
+
 
