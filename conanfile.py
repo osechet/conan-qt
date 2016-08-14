@@ -103,26 +103,33 @@ class QtConan(ConanFile):
         self.copy(pattern="*", src=src)
 
     def package_info(self):
-        libs = ['Qt53DCore', 'Qt53DInput', 'Qt53DLogic',
-                'Qt53DQuickInput', 'Qt53DQuickRender', 'Qt53DQuick',
-                'Qt53DRender', 'Qt5Bluetooth', 'Qt5CLucene',
-                'Qt5Concurrent', 'Qt5Core', 'Qt5DBus',
-                'Qt5DesignerComponents', 'Qt5Designer', 'Qt5Gui',
-                'Qt5Help', 'Qt5LabsTemplates', 'Qt5Location',
-                'Qt5MultimediaQuick_p', 'Qt5Multimedia', 'Qt5MultimediaWidgets',
-                'Qt5Network', 'Qt5Nfc', 'Qt5OpenGL',
-                'Qt5Positioning', 'Qt5PrintSupport', 'Qt5Qml',
-                'Qt5QuickParticles', 'Qt5Quick', 'Qt5QuickTest',
-                'Qt5QuickWidgets', 'Qt5Script', 'Qt5ScriptTools',
-                'Qt5Sensors', 'Qt5SerialBus', 'Qt5SerialPort',
-                'Qt5Sql', 'Qt5Svg', 'Qt5Test',
-                'Qt5WebChannel', 'Qt5WebSockets', 'Qt5Widgets',
-                'Qt5X11Extras', 'Qt5XcbQpa', 'Qt5XmlPatterns',
-                'Qt5Xml']
-        if self.settings.os == "Windows" and self.settings.build_type == "Debug":
-            self.cpp_info.libs = ["%sd" % lib for lib in libs]
-        else:
-            self.cpp_info.libs = libs
+        libs = ['3DCore', '3DInput', '3DLogic',
+                '3DQuickInput', '3DQuickRender', '3DQuick',
+                '3DRender', 'Bluetooth', 'CLucene',
+                'Concurrent', 'Core', 'DBus',
+                'DesignerComponents', 'Designer', 'Gui',
+                'Help', 'LabsTemplates', 'Location',
+                'MultimediaQuick_p', 'Multimedia', 'MultimediaWidgets',
+                'Network', 'Nfc', 'OpenGL',
+                'Positioning', 'PrintSupport', 'Qml',
+                'QuickParticles', 'Quick', 'QuickTest',
+                'QuickWidgets', 'Script', 'ScriptTools',
+                'Sensors', 'SerialBus', 'SerialPort',
+                'Sql', 'Svg', 'Test',
+                'WebChannel', 'WebSockets', 'Widgets',
+                'XmlPatterns', 'Xml']
+        if self.settings.os != "Windows":
+            libs += ['X11Extras', 'XcbQpa']
+
+        self.cpp_info.libs = []
+        self.cpp_info.includedirs = ["include"]
+        for lib in libs:
+            if self.settings.os == "Windows" and self.settings.build_type == "Debug":
+                suffix = "d"
+            else:
+                suffix = ""
+            self.cpp_info.libs += ["Qt5%s%s" % (lib, suffix)]
+            self.cpp_info.includedirs += ["include/Qt%s" % lib]
 
         if self.settings.os == "Windows":
             # Some missing shared libs inside QML and others, but for the test it works

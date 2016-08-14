@@ -20,3 +20,13 @@ target_link_libraries(helloworld
     PUBLIC
     Qt5::Core
 )
+
+add_executable(helloworld2 main.cpp)
+target_include_directories(helloworld2
+    PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
+target_link_libraries(helloworld2
+    PUBLIC
+    ${CONAN_LIBS}
+)
