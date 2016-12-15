@@ -32,6 +32,9 @@ If you handle multiple dependencies in your project is better to add a *conanfil
     Qt:shared=true # false
     # On Windows, you can choose the opengl mode, default is 'desktop'
     Qt:opengl=desktop # dynamic
+    # If you need specific Qt modules, you can add them as follow:
+    Qt:websockets=true
+    Qt:xmlpatterns=true
     
     [generators]
     txt
