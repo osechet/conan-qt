@@ -9,7 +9,7 @@ USERNAME = os.getenv("CONAN_USERNAME", "osechet")
 class QtTestConan(ConanFile):
     """ Qt Conan package test """
 
-    requires = "Qt/5.6.2@%s/%s" % (USERNAME, CHANNEL)
+    requires = "Qt/5.7.0@%s/%s" % (USERNAME, CHANNEL)
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "virtualenv"
 
