@@ -4,6 +4,29 @@ from distutils.spawn import find_executable
 from conans import ConanFile, ConfigureEnvironment
 from conans.tools import cpu_count, vcvars_command, os_info, SystemPackageTool
 
+def which(program):
+    """
+    Locate a command.
+    """
+    def is_exe(fpath):
+        """
+        Check if a path is executable.
+        """
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, _ = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
 class QtConan(ConanFile):
     """ Qt Conan package """
 
@@ -62,6 +85,13 @@ class QtConan(ConanFile):
 
         if self.settings.os != "Windows":
             self.run("chmod +x ./%s/configure" % self.sourceDir)
+        else:
+            # Fix issue with sh.exe and cmake on Windows
+            # This solution isn't good at all but I cannot find anything else
+            sh_path = which("sh.exe")
+            if sh_path:
+                fpath, _ = os.path.split(sh_path)
+                self.run("ren \"%s\" _sh.exe" % os.path.join(fpath, "sh.exe"))
 
     def build(self):
         """ Define your project building. You decide the way of building it
