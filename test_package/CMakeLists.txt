@@ -13,6 +13,7 @@ set(AUTOMOC_MOC_OPTIONS PROPERTIES FOLDER CMakeAutomocTargets)
 set_property(GLOBAL PROPERTY AUTOMOC_FOLDER CMakeAutomocTargets)
 
 add_executable(helloworld main.cpp)
+target_compile_features(helloworld PRIVATE cxx_nullptr)
 target_include_directories(helloworld
     PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -23,6 +24,7 @@ target_link_libraries(helloworld
 )
 
 add_executable(helloworld2 main.cpp)
+target_compile_features(helloworld2 PRIVATE cxx_nullptr)
 target_include_directories(helloworld2
     PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}
