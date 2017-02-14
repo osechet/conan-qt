@@ -5,7 +5,7 @@ environment:
     CONAN_UPLOAD: 1
     CONAN_REFERENCE: "Qt/5.6.2"
     CONAN_USERNAME: "osechet"
-    CONAN_CHANNEL: "testing"
+    CONAN_CHANNEL: "stable"
     CONAN_TOTAL_PAGES: 16
     CONAN_VISUAL_VERSIONS: "12,14"
 

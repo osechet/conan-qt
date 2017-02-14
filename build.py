@@ -3,7 +3,7 @@ from conans.tools import os_info
 import platform
 
 if __name__ == "__main__":
-    builder = ConanMultiPackager(username="osechet", channel="testing")
+    builder = ConanMultiPackager(username="osechet", channel="stable")
     builder.add_common_builds()
     filtered_builds = []
     for settings, options in builder.builds:

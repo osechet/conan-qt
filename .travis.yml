@@ -8,7 +8,7 @@ env:
     - CONAN_UPLOAD: 1
     - CONAN_REFERENCE: "Qt/5.6.2"
     - CONAN_USERNAME: "osechet"
-    - CONAN_CHANNEL: "testing"
+    - CONAN_CHANNEL: "stable"
     - CONAN_TOTAL_PAGES: 1
   matrix:
     - CONAN_GCC_VERSIONS: 4.8 CONAN_USE_DOCKER=1
