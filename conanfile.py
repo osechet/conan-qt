@@ -31,7 +31,7 @@ class QtConan(ConanFile):
     """ Qt Conan package """
 
     name = "Qt"
-    version = "5.6.2"
+    version = "5.7.0"
     sourceDir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
     options = {
