@@ -35,14 +35,14 @@ If you handle multiple dependencies in your project is better to add a *conanfil
     # If you need specific Qt modules, you can add them as follow:
     Qt:websockets=true
     Qt:xmlpatterns=true
-    
+
     [generators]
     txt
     cmake
 ```
 Complete the installation of requirements for your project running:
 ```
-    conan install . 
+    conan install .
 ```
 Project setup installs the library (and all his dependencies) and generates the files *conanbuildinfo.txt* and *conanbuildinfo.cmake* with all the paths and variables that you need to link with your dependencies.
 
@@ -52,7 +52,7 @@ Project setup installs the library (and all his dependencies) and generates the 
 
     $ pip install conan_package_tools
     $ python build.py
-    
+
 ### Upload packages to server
 
     $ conan upload Qt/5.7.0@osechet/testing --all
