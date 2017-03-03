@@ -1,4 +1,3 @@
-
 import os
 from distutils.spawn import find_executable
 from conans import ConanFile, ConfigureEnvironment
@@ -29,9 +28,9 @@ def which(program):
 
 class QtConan(ConanFile):
     """ Qt Conan package """
-
     name = "Qt"
     version = "5.7.0"
+    url = "http://github.com/osechet/conan-qt"
     sourceDir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -41,9 +40,9 @@ class QtConan(ConanFile):
         "xmlpatterns": [True, False]
     }
     default_options = "shared=True", "opengl=desktop", "websockets=False", "xmlpatterns=False"
-    url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
+    generators = "cmake", "xcode"
 
     def system_requirements(self):
         pack_names = None
