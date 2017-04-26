@@ -1,7 +1,7 @@
 
 import os
 from distutils.spawn import find_executable
-from conans import ConanFile, ConfigureEnvironment
+from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
 from conans.tools import cpu_count, vcvars_command, os_info, SystemPackageTool
 
 def which(program):
@@ -123,36 +123,41 @@ class QtConan(ConanFile):
             build_args = []
         self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
-        vcvars = vcvars_command(self.settings)
-        vcvars = vcvars + " && " if vcvars else ""
-        set_env = 'SET PATH={dir}/qtbase/bin;{dir}/gnuwin32/bin;%PATH%'.format(dir=self.conanfile_directory)
-        args += ["-opengl %s" % self.options.opengl]
-        # it seems not enough to set the vcvars for older versions, it works fine
-        # with MSVC2015 without -platform
-        if self.settings.compiler == "Visual Studio":
-            if self.settings.compiler.version == "12":
-                args += ["-platform win32-msvc2013"]
-            if self.settings.compiler.version == "11":
-                args += ["-platform win32-msvc2012"]
-            if self.settings.compiler.version == "10":
-                args += ["-platform win32-msvc2010"]
+        env_build = VisualStudioBuildEnvironment(self)
+        env = {'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
+                        '%s/gnuwin32/bin' % self.conanfile_directory]}
+        env += env_build.vars
+        with tools.environment_append(env):
+            vcvars = tools.vcvars_command(self.settings)
 
-        self.run("cd %s && %s && %s configure %s"
-                 % (self.sourceDir, set_env, vcvars, " ".join(args)))
-        self.run("cd %s && %s %s %s"
-                 % (self.sourceDir, vcvars, build_command, " ".join(build_args)))
-        self.run("cd %s && %s %s install" % (self.sourceDir, vcvars, build_command))
+            args += ["-opengl %s" % self.options.opengl]
+            # it seems not enough to set the vcvars for older versions, it works fine
+            # with MSVC2015 without -platform
+            if self.settings.compiler == "Visual Studio":
+                if self.settings.compiler.version == "12":
+                    args += ["-platform win32-msvc2013"]
+                if self.settings.compiler.version == "11":
+                    args += ["-platform win32-msvc2012"]
+                if self.settings.compiler.version == "10":
+                    args += ["-platform win32-msvc2010"]
+
+            self.run("cd %s && %s && configure %s"
+                     % (self.sourceDir, vcvars, " ".join(args)))
+            self.run("cd %s && %s && %s %s"
+                     % (self.sourceDir, vcvars, build_command, " ".join(build_args)))
+            self.run("cd %s && %s && %s install" % (self.sourceDir, vcvars, build_command))
 
     def _build_mingw(self, args):
-        env = ConfigureEnvironment(self.deps_cpp_info, self.settings)
-        args += ["-developer-build", "-opengl %s" % self.options.opengl, "-platform win32-g++"]
+        env_build = AutoToolsBuildEnvironment(self)
+        with tools.environment_append(env_build.vars):
+            args += ["-developer-build", "-opengl %s" % self.options.opengl, "-platform win32-g++"]
 
-        self.output.info("Using '%s' threads" % str(cpu_count()))
-        self.run("%s && cd %s && configure.bat %s"
-                 % (env.command_line_env, self.sourceDir, " ".join(args)))
-        self.run("%s && cd %s && mingw32-make -j %s"
-                 % (env.command_line_env, self.sourceDir, str(cpu_count())))
-        self.run("%s && cd %s && mingw32-make install" % (env.command_line_env, self.sourceDir))
+            self.output.info("Using '%s' threads" % str(cpu_count()))
+            self.run("cd %s && configure.bat %s"
+                     % (self.sourceDir, " ".join(args)))
+            self.run("cd %s && mingw32-make -j %s"
+                     % (self.sourceDir, str(cpu_count())))
+            self.run("cd %s && mingw32-make install" % (self.sourceDir))
 
     def _build_unix(self, args):
         if self.settings.os == "Linux":
