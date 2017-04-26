@@ -1,9 +1,9 @@
 Conan package for Qt
 --------------------------------------------
 
-[![Build Status](https://travis-ci.org/osechet/conan-qt.svg?branch=master)](https://travis-ci.org/osechet/conan-qt)
+[![Build Status](https://travis-ci.org/osechet/conan-qt.svg?branch=testing/5.7.1)](https://travis-ci.org/osechet/conan-qt)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/gboj3x82d42eoasw?svg=true)](https://ci.appveyor.com/project/osechet/conan-qt)
+[![Build status](https://ci.appveyor.com/api/projects/status/gboj3x82d42eoasw/branch/testing/5.7.1?svg=true)](https://ci.appveyor.com/project/osechet/conan-qt)
 
 Note: Travis an Appveyor builds are not working because the build of Qt is too long and exceed their time limit.
 
