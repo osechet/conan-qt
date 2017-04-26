@@ -6,7 +6,7 @@ def main():
     """
     Main function.
     """
-    builder = ConanMultiPackager(username="osechet", channel="stable")
+    builder = ConanMultiPackager(username="osechet", channel="testing")
     builder.add_common_builds()
     filtered_builds = []
     for settings, options, env_vars, build_requires in builder.builds:
