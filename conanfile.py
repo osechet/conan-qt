@@ -126,7 +126,7 @@ class QtConan(ConanFile):
         env_build = VisualStudioBuildEnvironment(self)
         env = {'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
                         '%s/gnuwin32/bin' % self.conanfile_directory]}
-        env += env_build.vars
+        env.update(env_build.vars)
         with tools.environment_append(env):
             vcvars = tools.vcvars_command(self.settings)
 
