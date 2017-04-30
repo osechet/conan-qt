@@ -125,21 +125,28 @@ class QtConan(ConanFile):
 
         env_build = VisualStudioBuildEnvironment(self)
         env = {'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
-                        '%s/gnuwin32/bin' % self.conanfile_directory]}
+                        '%s/gnuwin32/bin' % self.conanfile_directory,
+                        '%s/qtrepotools/bin' % self.conanfile_directory]}
+        # it seems not enough to set the vcvars for older versions
+        if self.settings.compiler == "Visual Studio":
+            if self.settings.compiler.version == "14":
+                env.update({'QMAKESPEC': 'win32-msvc2015'})
+                args += ["-platform win32-msvc2015"]
+            if self.settings.compiler.version == "12":
+                env.update({'QMAKESPEC': 'win32-msvc2013'})
+                args += ["-platform win32-msvc2013"]
+            if self.settings.compiler.version == "11":
+                env.update({'QMAKESPEC': 'win32-msvc2012'})
+                args += ["-platform win32-msvc2012"]
+            if self.settings.compiler.version == "10":
+                env.update({'QMAKESPEC': 'win32-msvc2010'})
+                args += ["-platform win32-msvc2010"]
+
         env.update(env_build.vars)
         with tools.environment_append(env):
             vcvars = tools.vcvars_command(self.settings)
 
             args += ["-opengl %s" % self.options.opengl]
-            # it seems not enough to set the vcvars for older versions, it works fine
-            # with MSVC2015 without -platform
-            if self.settings.compiler == "Visual Studio":
-                if self.settings.compiler.version == "12":
-                    args += ["-platform win32-msvc2013"]
-                if self.settings.compiler.version == "11":
-                    args += ["-platform win32-msvc2012"]
-                if self.settings.compiler.version == "10":
-                    args += ["-platform win32-msvc2010"]
 
             self.run("cd %s && %s && configure %s"
                      % (self.sourceDir, vcvars, " ".join(args)))
@@ -149,7 +156,12 @@ class QtConan(ConanFile):
 
     def _build_mingw(self, args):
         env_build = AutoToolsBuildEnvironment(self)
-        with tools.environment_append(env_build.vars):
+        env = {'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
+                        '%s/gnuwin32/bin' % self.conanfile_directory,
+                        '%s/qtrepotools/bin' % self.conanfile_directory],
+               'QMAKESPEC': 'win32-g++'}
+        env.update(env_build.vars)
+        with tools.environment_append(env):
             args += ["-developer-build", "-opengl %s" % self.options.opengl, "-platform win32-g++"]
 
             self.output.info("Using '%s' threads" % str(cpu_count()))
