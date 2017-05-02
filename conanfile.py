@@ -2,7 +2,7 @@
 import os
 from distutils.spawn import find_executable
 from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
-from conans.tools import cpu_count, vcvars_command, os_info, SystemPackageTool
+from conans.tools import cpu_count, os_info, SystemPackageTool
 
 def which(program):
     """
@@ -32,15 +32,25 @@ class QtConan(ConanFile):
 
     name = "Qt"
     version = "5.7.1"
+    description = "The Qt library"
     sourceDir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "opengl": ["desktop", "dynamic"],
+        "canvas3d": [True, False],
+        "gamepad": [True, False],
+        "graphicaleffects": [True, False],
+        "imageformats": [True, False],
+        "location": [True, False],
+        "serialport": [True, False],
+        "svg": [True, False],
+        "tools": [True, False],
+        "webengine": [True, False],
         "websockets": [True, False],
         "xmlpatterns": [True, False]
     }
-    default_options = "shared=True", "opengl=desktop", "websockets=False", "xmlpatterns=False"
+    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -70,6 +80,25 @@ class QtConan(ConanFile):
 
     def source(self):
         submodules = ["qtbase"]
+
+        if self.options.canvas3d:
+            submodules.append("qtcanvas3d")
+        if self.options.gamepad:
+            submodules.append("qtgamepad")
+        if self.options.graphicaleffects:
+            submodules.append("qtgraphicaleffects")
+        if self.options.imageformats:
+            submodules.append("qtimageformats")
+        if self.options.location:
+            submodules.append("qtlocation")
+        if self.options.serialport:
+            submodules.append("qtserialport")
+        if self.options.svg:
+            submodules.append("qtsvg")
+        if self.options.tools:
+            submodules.append("qttools")
+        if self.options.webengine:
+            submodules.append("qtwebengine")
         if self.options.websockets:
             submodules.append("qtwebsockets")
         if self.options.xmlpatterns:
