@@ -5,8 +5,6 @@ Conan package for Qt
 
 [![Build status](https://ci.appveyor.com/api/projects/status/gboj3x82d42eoasw?svg=true)](https://ci.appveyor.com/project/osechet/conan-qt)
 
-Note: Travis an Appveyor builds are not working because the build of Qt is too long and exceed their time limit.
-
 [ ![Download](https://api.bintray.com/packages/osechet/Conan/Qt%3Aosechet/images/download.svg?version=5.6.2%3Astable) ](https://bintray.com/osechet/Conan/Qt%3Aosechet/5.6.2%3Astable/link)
 
 [Conan.io](https://conan.io) package for [Qt](https://www.qt.io) library. This package includes by default the Qt Base module (Core, Gui, Widgets, Network, ...). Others modules can be added using options.
