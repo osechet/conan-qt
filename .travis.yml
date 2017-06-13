@@ -6,6 +6,7 @@ services:
 env:
   global:
     - CONAN_UPLOAD: 1
+    - CONAN_REMOTE: conan-osechet
     - CONAN_REFERENCE: "Qt/5.6.2"
     - CONAN_USERNAME: "osechet"
     - CONAN_CHANNEL: "stable"
