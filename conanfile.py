@@ -1,6 +1,5 @@
 
 import os
-from distutils.spawn import find_executable
 from conans import ConanFile, ConfigureEnvironment
 from conans.tools import cpu_count, vcvars_command, os_info, SystemPackageTool
 
