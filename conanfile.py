@@ -161,7 +161,7 @@ class QtConan(ConanFile):
             if self.settings.arch == "x86":
                 args += ["-platform linux-g++-32"]
         else:
-            args += ["-silent"]
+            args += ["-silent", "-no-framework"]
             if self.settings.arch == "x86":
                 args += ["-platform macx-clang-32"]
 
