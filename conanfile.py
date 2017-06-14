@@ -32,6 +32,7 @@ class QtConan(ConanFile):
 
     name = "Qt"
     version = "5.6.2"
+    description = "Conan.io package for Qt library."
     sourceDir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
     options = {
