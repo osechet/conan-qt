@@ -2,8 +2,7 @@ build: false
 environment:
     MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 6.2@x86_64@seh@posix"
 
-    CONAN_UPLOAD: 1
-    CONAN_REMOTE: conan-osechet
+    CONAN_UPLOAD: "https://api.bintray.com/conan/osechet/Conan"
     CONAN_REFERENCE: "Qt/5.6.2"
     CONAN_USERNAME: "osechet"
     CONAN_CHANNEL: "stable"
@@ -30,7 +29,6 @@ environment:
 
 install:
   - pip.exe install conan_package_tools # It install conan too
-  - conan remote add conan-osechet https://api.bintray.com/conan/osechet/Conan
   - conan user
 
 test_script:

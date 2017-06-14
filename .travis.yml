@@ -5,8 +5,7 @@ services:
   - docker
 env:
   global:
-    - CONAN_UPLOAD: 1
-    - CONAN_REMOTE: conan-osechet
+    - CONAN_UPLOAD: "https://api.bintray.com/conan/osechet/Conan"
     - CONAN_REFERENCE: "Qt/5.6.2"
     - CONAN_USERNAME: "osechet"
     - CONAN_CHANNEL: "stable"
@@ -27,29 +26,29 @@ env:
 matrix:
    include:
        - os: osx
-         osx_image: xcode8.2 # apple-clang 8.0
+         osx_image: xcode8.2
          language: generic
          env: CONAN_CURRENT_PAGE=1
        - os: osx
-         osx_image: xcode8.2 # apple-clang 8.0
+         osx_image: xcode8.2
          language: generic
          env: CONAN_CURRENT_PAGE=2
 
        - os: osx
-         osx_image: xcode7.3 # apple-clang 7.3
+         osx_image: xcode7.3
          language: generic
          env: CONAN_CURRENT_PAGE=1
        - os: osx
-         osx_image: xcode7.3 # apple-clang 7.3
+         osx_image: xcode7.3
          language: generic
          env: CONAN_CURRENT_PAGE=2
 
        - os: osx
-         osx_image: xcode6.4 # apple-clang 6.1
+         osx_image: xcode6.4
          language: generic
          env: CONAN_CURRENT_PAGE=1
        - os: osx
-         osx_image: xcode6.4 # apple-clang 6.1
+         osx_image: xcode6.4
          language: generic
          env: CONAN_CURRENT_PAGE=2
 
