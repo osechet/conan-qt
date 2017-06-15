@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 2.8.12)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-# Workaround for rpath error
 if(APPLE)
+    # Workaround for rpath error
     set(CMAKE_SKIP_RPATH 0)
 endif(APPLE)
 

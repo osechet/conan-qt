@@ -180,6 +180,8 @@ class QtConan(ConanFile):
         for lib in libs:
             if self.settings.os == "Windows" and self.settings.build_type == "Debug":
                 suffix = "d"
+            elif self.settings.os == "Macos" and self.settings.build_type == "Debug":
+                suffix = "_debug"
             else:
                 suffix = ""
             self.cpp_info.libs += ["Qt5%s%s" % (lib, suffix)]
