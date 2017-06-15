@@ -10,8 +10,6 @@ def main():
     builder.add_common_builds()
     filtered_builds = []
     for settings, options, env_vars, build_requires in builder.builds:
-        if os_info.is_macos and settings["build_type"] == "Debug":
-            continue
         if settings["arch"] != "x86_64":
             continue
 
