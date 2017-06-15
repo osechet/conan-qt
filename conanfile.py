@@ -2,6 +2,7 @@
 import os
 from conans import ConanFile, ConfigureEnvironment
 from conans.tools import cpu_count, vcvars_command, os_info, SystemPackageTool
+from distutils.spawn import find_executable
 
 def which(program):
     """
