@@ -6,7 +6,7 @@ environment:
     CONAN_REFERENCE: "Qt/5.6.2"
     CONAN_USERNAME: "osechet"
     CONAN_CHANNEL: "stable"
-    CONAN_TOTAL_PAGES: 16
+    CONAN_TOTAL_PAGES: 14
     CONAN_VISUAL_VERSIONS: "12,14"
 
     matrix:
@@ -24,8 +24,6 @@ environment:
         - CONAN_CURRENT_PAGE: 12
         - CONAN_CURRENT_PAGE: 13
         - CONAN_CURRENT_PAGE: 14
-        - CONAN_CURRENT_PAGE: 15
-        - CONAN_CURRENT_PAGE: 16
 
 install:
   - pip.exe install conan_package_tools # It install conan too
