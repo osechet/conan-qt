@@ -29,16 +29,28 @@ matrix:
          osx_image: xcode8.2
          language: generic
          env: CONAN_CURRENT_PAGE=1
+       - os: osx
+         osx_image: xcode8.2
+         language: generic
+         env: CONAN_CURRENT_PAGE=2
 
        - os: osx
          osx_image: xcode7.3
          language: generic
          env: CONAN_CURRENT_PAGE=1
+       - os: osx
+         osx_image: xcode7.3
+         language: generic
+         env: CONAN_CURRENT_PAGE=2
 
        - os: osx
          osx_image: xcode6.4
          language: generic
          env: CONAN_CURRENT_PAGE=1
+       - os: osx
+         osx_image: xcode6.4
+         language: generic
+         env: CONAN_CURRENT_PAGE=2
 
 cache: pip
 
