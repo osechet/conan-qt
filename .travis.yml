@@ -1,58 +1,66 @@
-os: linux
-language: python
-sudo: required
-services:
-  - docker
 env:
-  global:
-    - CONAN_UPLOAD: "https://api.bintray.com/conan/osechet/Conan"
-    - CONAN_REFERENCE: "Qt/5.6.2"
-    - CONAN_USERNAME: "osechet"
-    - CONAN_CHANNEL: "stable"
-    - CONAN_TOTAL_PAGES: 2
-  matrix:
-    - CONAN_GCC_VERSIONS=4.8 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
-    - CONAN_GCC_VERSIONS=4.8 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
+   global:
+     - CONAN_REFERENCE: "Qt/5.6.2"
+     - CONAN_USERNAME: "osechet"
+     - CONAN_LOGIN_USERNAME: "osechet"
+     - CONAN_CHANNEL: "stable"
+     - CONAN_UPLOAD: "https://api.bintray.com/conan/osechet/Conan"
+     - CONAN_TOTAL_PAGES: 2
 
-    - CONAN_GCC_VERSIONS=4.9 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
-    - CONAN_GCC_VERSIONS=4.9 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
-
-    - CONAN_GCC_VERSIONS=5.2 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
-    - CONAN_GCC_VERSIONS=5.2 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
-
-    - CONAN_GCC_VERSIONS=5.4 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
-    - CONAN_GCC_VERSIONS=5.4 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
-
+linux: &linux
+   os: linux
+   sudo: required
+   language: python
+   python: "3.6"
+   services:
+     - docker
+osx: &osx
+   os: osx
+   language: generic
 matrix:
    include:
-       - os: osx
-         osx_image: xcode8.2
-         language: generic
-         env: CONAN_CURRENT_PAGE=1
-       - os: osx
-         osx_image: xcode8.2
-         language: generic
-         env: CONAN_CURRENT_PAGE=2
 
-       - os: osx
-         osx_image: xcode7.3
-         language: generic
-         env: CONAN_CURRENT_PAGE=1
-       - os: osx
-         osx_image: xcode7.3
-         language: generic
-         env: CONAN_CURRENT_PAGE=2
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=4.8 CONAN_DOCKER_IMAGE=lasote/conangcc48 CONAN_CURRENT_PAGE=1
 
-       - os: osx
-         osx_image: xcode6.4
-         language: generic
-         env: CONAN_CURRENT_PAGE=1
-       - os: osx
-         osx_image: xcode6.4
-         language: generic
-         env: CONAN_CURRENT_PAGE=2
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=4.8 CONAN_DOCKER_IMAGE=lasote/conangcc48 CONAN_CURRENT_PAGE=2
 
-cache: pip
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=lasote/conangcc49 CONAN_CURRENT_PAGE=1
+
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=lasote/conangcc49 CONAN_CURRENT_PAGE=2
+
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=5.4 CONAN_DOCKER_IMAGE=lasote/conangcc54 CONAN_CURRENT_PAGE=1
+
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=5.4 CONAN_DOCKER_IMAGE=lasote/conangcc54 CONAN_CURRENT_PAGE=2
+
+      - <<: *osx
+        osx_image: xcode7.3
+        env: CONAN_APPLE_CLANG_VERSIONS=7.3 CONAN_CURRENT_PAGE=1
+
+      - <<: *osx
+        osx_image: xcode7.3
+        env: CONAN_APPLE_CLANG_VERSIONS=7.3 CONAN_CURRENT_PAGE=2
+
+      - <<: *osx
+        osx_image: xcode8.2
+        env: CONAN_APPLE_CLANG_VERSIONS=8.0 CONAN_CURRENT_PAGE=1
+
+      - <<: *osx
+        osx_image: xcode8.2
+        env: CONAN_APPLE_CLANG_VERSIONS=8.0 CONAN_CURRENT_PAGE=2
+
+      - <<: *osx
+        osx_image: xcode8.3
+        env: CONAN_APPLE_CLANG_VERSIONS=8.1 CONAN_CURRENT_PAGE=1
+
+      - <<: *osx
+        osx_image: xcode8.3
+        env: CONAN_APPLE_CLANG_VERSIONS=8.1 CONAN_CURRENT_PAGE=2
 
 install:
   - chmod +x .travis/install.sh
