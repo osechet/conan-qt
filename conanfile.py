@@ -31,17 +31,26 @@ class QtConan(ConanFile):
     """ Qt Conan package """
 
     name = "Qt"
-    version = "5.6.2"
+    version = "5.7.1"
     description = "Conan.io package for Qt library."
     sourceDir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "opengl": ["desktop", "dynamic"],
+        "canvas3d": [True, False],
+        "gamepad": [True, False],
+        "graphicaleffects": [True, False],
+        "imageformats": [True, False],
+        "location": [True, False],
+        "serialport": [True, False],
+        "svg": [True, False],
+        "tools": [True, False],
+        "webengine": [True, False],
         "websockets": [True, False],
         "xmlpatterns": [True, False]
     }
-    default_options = "shared=True", "opengl=desktop", "websockets=False", "xmlpatterns=False"
+    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -71,6 +80,25 @@ class QtConan(ConanFile):
 
     def source(self):
         submodules = ["qtbase"]
+
+        if self.options.canvas3d:
+            submodules.append("qtcanvas3d")
+        if self.options.gamepad:
+            submodules.append("qtgamepad")
+        if self.options.graphicaleffects:
+            submodules.append("qtgraphicaleffects")
+        if self.options.imageformats:
+            submodules.append("qtimageformats")
+        if self.options.location:
+            submodules.append("qtlocation")
+        if self.options.serialport:
+            submodules.append("qtserialport")
+        if self.options.svg:
+            submodules.append("qtsvg")
+        if self.options.tools:
+            submodules.append("qttools")
+        if self.options.webengine:
+            submodules.append("qtwebengine")
         if self.options.websockets:
             submodules.append("qtwebsockets")
         if self.options.xmlpatterns:
@@ -124,36 +152,53 @@ class QtConan(ConanFile):
             build_args = []
         self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
-        vcvars = vcvars_command(self.settings)
-        vcvars = vcvars + " && " if vcvars else ""
-        set_env = 'SET PATH={dir}/qtbase/bin;{dir}/gnuwin32/bin;%PATH%'.format(dir=self.conanfile_directory)
-        args += ["-opengl %s" % self.options.opengl]
-        # it seems not enough to set the vcvars for older versions, it works fine
-        # with MSVC2015 without -platform
+        env_build = VisualStudioBuildEnvironment(self)
+        env = {'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
+                        '%s/gnuwin32/bin' % self.conanfile_directory,
+                        '%s/qtrepotools/bin' % self.conanfile_directory]}
+        # it seems not enough to set the vcvars for older versions
         if self.settings.compiler == "Visual Studio":
+            if self.settings.compiler.version == "14":
+                env.update({'QMAKESPEC': 'win32-msvc2015'})
+                args += ["-platform win32-msvc2015"]
             if self.settings.compiler.version == "12":
+                env.update({'QMAKESPEC': 'win32-msvc2013'})
                 args += ["-platform win32-msvc2013"]
             if self.settings.compiler.version == "11":
+                env.update({'QMAKESPEC': 'win32-msvc2012'})
                 args += ["-platform win32-msvc2012"]
             if self.settings.compiler.version == "10":
+                env.update({'QMAKESPEC': 'win32-msvc2010'})
                 args += ["-platform win32-msvc2010"]
 
-        self.run("cd %s && %s && %s configure %s"
-                 % (self.sourceDir, set_env, vcvars, " ".join(args)))
-        self.run("cd %s && %s %s %s"
-                 % (self.sourceDir, vcvars, build_command, " ".join(build_args)))
-        self.run("cd %s && %s %s install" % (self.sourceDir, vcvars, build_command))
+        env.update(env_build.vars)
+        with tools.environment_append(env):
+            vcvars = tools.vcvars_command(self.settings)
+
+            args += ["-opengl %s" % self.options.opengl]
+
+            self.run("cd %s && %s && configure %s"
+                     % (self.sourceDir, vcvars, " ".join(args)))
+            self.run("cd %s && %s && %s %s"
+                     % (self.sourceDir, vcvars, build_command, " ".join(build_args)))
+            self.run("cd %s && %s && %s install" % (self.sourceDir, vcvars, build_command))
 
     def _build_mingw(self, args):
-        env = ConfigureEnvironment(self.deps_cpp_info, self.settings)
-        args += ["-developer-build", "-opengl %s" % self.options.opengl, "-platform win32-g++"]
+        env_build = AutoToolsBuildEnvironment(self)
+        env = {'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
+                        '%s/gnuwin32/bin' % self.conanfile_directory,
+                        '%s/qtrepotools/bin' % self.conanfile_directory],
+               'QMAKESPEC': 'win32-g++'}
+        env.update(env_build.vars)
+        with tools.environment_append(env):
+            args += ["-developer-build", "-opengl %s" % self.options.opengl, "-platform win32-g++"]
 
-        self.output.info("Using '%s' threads" % str(cpu_count()))
-        self.run("%s && cd %s && configure.bat %s"
-                 % (env.command_line_env, self.sourceDir, " ".join(args)))
-        self.run("%s && cd %s && mingw32-make -j %s"
-                 % (env.command_line_env, self.sourceDir, str(cpu_count())))
-        self.run("%s && cd %s && mingw32-make install" % (env.command_line_env, self.sourceDir))
+            self.output.info("Using '%s' threads" % str(cpu_count()))
+            self.run("cd %s && configure.bat %s"
+                     % (self.sourceDir, " ".join(args)))
+            self.run("cd %s && mingw32-make -j %s"
+                     % (self.sourceDir, str(cpu_count())))
+            self.run("cd %s && mingw32-make install" % (self.sourceDir))
 
     def _build_unix(self, args):
         if self.settings.os == "Linux":

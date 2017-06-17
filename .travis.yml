@@ -1,9 +1,9 @@
 env:
    global:
-     - CONAN_REFERENCE: "Qt/5.6.2"
+     - CONAN_REFERENCE: "Qt/5.7.1"
      - CONAN_USERNAME: "osechet"
      - CONAN_LOGIN_USERNAME: "osechet"
-     - CONAN_CHANNEL: "stable"
+     - CONAN_CHANNEL: "testing"
      - CONAN_UPLOAD: "https://api.bintray.com/conan/osechet/Conan"
      - CONAN_TOTAL_PAGES: 2
 
