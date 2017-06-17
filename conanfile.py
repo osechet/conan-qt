@@ -1,8 +1,8 @@
 
 import os
-from distutils.spawn import find_executable
 from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
 from conans.tools import cpu_count, os_info, SystemPackageTool
+from distutils.spawn import find_executable
 
 def which(program):
     """
@@ -32,7 +32,7 @@ class QtConan(ConanFile):
 
     name = "Qt"
     version = "5.7.1"
-    description = "The Qt library"
+    description = "Conan.io package for Qt library."
     sourceDir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -191,7 +191,9 @@ class QtConan(ConanFile):
                'QMAKESPEC': 'win32-g++'}
         env.update(env_build.vars)
         with tools.environment_append(env):
-            args += ["-developer-build", "-opengl %s" % self.options.opengl, "-platform win32-g++"]
+            args += ["-developer-build",
+                     "-opengl %s" % self.options.opengl,
+                     "-platform win32-g++"]
 
             self.output.info("Using '%s' threads" % str(cpu_count()))
             self.run("cd %s && configure.bat %s"
@@ -206,7 +208,7 @@ class QtConan(ConanFile):
             if self.settings.arch == "x86":
                 args += ["-platform linux-g++-32"]
         else:
-            args += ["-silent"]
+            args += ["-silent", "-no-framework"]
             if self.settings.arch == "x86":
                 args += ["-platform macx-clang-32"]
 
@@ -225,6 +227,8 @@ class QtConan(ConanFile):
         for lib in libs:
             if self.settings.os == "Windows" and self.settings.build_type == "Debug":
                 suffix = "d"
+            elif self.settings.os == "Macos" and self.settings.build_type == "Debug":
+                suffix = "_debug"
             else:
                 suffix = ""
             self.cpp_info.libs += ["Qt5%s%s" % (lib, suffix)]

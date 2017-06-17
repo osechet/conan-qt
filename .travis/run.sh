@@ -10,5 +10,4 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
     pyenv activate conan
 fi
 
-# Use travis_wait since the command may not output text for more than 10 minutes
 python build.py
