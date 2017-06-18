@@ -16,6 +16,11 @@ environment:
         - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 6.2@x86_64@seh@posix"
           CONAN_TOTAL_PAGES: 14
           CONAN_CURRENT_PAGE: 1
+        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+          CONAN_VISUAL_VERSIONS: 12
+          CONAN_TOTAL_PAGES: 4
+          CONAN_CURRENT_PAGE: 1
+
         - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 6.2@x86_64@seh@posix"
           CONAN_TOTAL_PAGES: 14
           CONAN_CURRENT_PAGE: 2
@@ -33,10 +38,7 @@ environment:
           CONAN_TOTAL_PAGES: 14
           CONAN_CURRENT_PAGE: 6
           CONAN_VISUAL_VERSIONS:
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-          CONAN_VISUAL_VERSIONS: 12
-          CONAN_TOTAL_PAGES: 4
-          CONAN_CURRENT_PAGE: 1
+
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
           CONAN_TOTAL_PAGES: 4
