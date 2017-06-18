@@ -185,7 +185,8 @@ class QtConan(ConanFile):
 
     def _build_mingw(self, args):
         env_build = AutoToolsBuildEnvironment(self)
-        env = {'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
+        env = {'PATH': ['%s/bin' % self.conanfile_directory,
+                        '%s/qtbase/bin' % self.conanfile_directory,
                         '%s/gnuwin32/bin' % self.conanfile_directory,
                         '%s/qtrepotools/bin' % self.conanfile_directory],
                'QMAKESPEC': 'win32-g++'}
