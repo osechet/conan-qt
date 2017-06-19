@@ -153,26 +153,25 @@ class QtConan(ConanFile):
         self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
         env_build = VisualStudioBuildEnvironment(self)
-        env = {'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
+        env_build.vars.update({'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
                         '%s/gnuwin32/bin' % self.conanfile_directory,
-                        '%s/qtrepotools/bin' % self.conanfile_directory]}
+                        '%s/qtrepotools/bin' % self.conanfile_directory]})
         # it seems not enough to set the vcvars for older versions
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
-                env.update({'QMAKESPEC': 'win32-msvc2015'})
+                env_build.vars.update({'QMAKESPEC': 'win32-msvc2015'})
                 args += ["-platform win32-msvc2015"]
             if self.settings.compiler.version == "12":
-                env.update({'QMAKESPEC': 'win32-msvc2013'})
+                env_build.vars.update({'QMAKESPEC': 'win32-msvc2013'})
                 args += ["-platform win32-msvc2013"]
             if self.settings.compiler.version == "11":
-                env.update({'QMAKESPEC': 'win32-msvc2012'})
+                env_build.vars.update({'QMAKESPEC': 'win32-msvc2012'})
                 args += ["-platform win32-msvc2012"]
             if self.settings.compiler.version == "10":
-                env.update({'QMAKESPEC': 'win32-msvc2010'})
+                env_build.vars.update({'QMAKESPEC': 'win32-msvc2010'})
                 args += ["-platform win32-msvc2010"]
 
-        env.update(env_build.vars)
-        with tools.environment_append(env):
+        with tools.environment_append(env_build.vars):
             vcvars = tools.vcvars_command(self.settings)
 
             args += ["-opengl %s" % self.options.opengl]
