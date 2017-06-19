@@ -177,6 +177,7 @@ class QtConan(ConanFile):
 
             args += ["-opengl %s" % self.options.opengl]
 
+            self.run("cd %s && %s && set" % (self.sourceDir, vcvars))
             self.run("cd %s && %s && configure %s"
                      % (self.sourceDir, vcvars, " ".join(args)))
             self.run("cd %s && %s && %s %s"
