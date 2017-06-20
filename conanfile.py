@@ -144,9 +144,6 @@ class QtConan(ConanFile):
             self._build_unix(args)
 
     def _build_msvc(self, args):
-        self.run("set")
-        print("----------")
-
         build_command = find_executable("jom.exe")
         if build_command:
             build_args = ["-j", str(cpu_count())]
@@ -174,10 +171,6 @@ class QtConan(ConanFile):
                 env.update({'QMAKESPEC': 'win32-msvc2010'})
                 args += ["-platform win32-msvc2010"]
 
-        print("before PATH = %s" % os.environ['PATH'])
-        print("before LIB = %s" % os.environ['LIB'])
-        print("----------")
-
         env_build = VisualStudioBuildEnvironment(self)
         env.update(env_build.vars)
 
@@ -185,12 +178,7 @@ class QtConan(ConanFile):
         for name, value in env.items():
             if not value:
                 del env[name]
-        print("build vars:\n%s" % env)
-        print("----------")
         with tools.environment_append(env):
-            print("after PATH = %s" % os.environ['PATH'])
-            print("after LIB = %s" % os.environ['LIB'])
-            print("----------")
             vcvars = tools.vcvars_command(self.settings)
 
             args += ["-opengl %s" % self.options.opengl]
@@ -210,6 +198,7 @@ class QtConan(ConanFile):
                         '%s/qtrepotools/bin' % self.conanfile_directory],
                'QMAKESPEC': 'win32-g++'}
         env.update(env_build.vars)
+        print(env_build.vars)
         with tools.environment_append(env):
             args += ["-developer-build",
                      "-opengl %s" % self.options.opengl,
