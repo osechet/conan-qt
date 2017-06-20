@@ -155,34 +155,41 @@ class QtConan(ConanFile):
             build_args = []
         self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
-        env_build = VisualStudioBuildEnvironment(self)
-        env_build.vars.update({'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
-                                        '%s/gnuwin32/bin' % self.conanfile_directory,
-                                        '%s/qtrepotools/bin' % self.conanfile_directory]})
+        env = {}
+        env.update({'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
+                             '%s/gnuwin32/bin' % self.conanfile_directory,
+                             '%s/qtrepotools/bin' % self.conanfile_directory]})
         # it seems not enough to set the vcvars for older versions
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
-                env_build.vars.update({'QMAKESPEC': 'win32-msvc2015'})
+                env.update({'QMAKESPEC': 'win32-msvc2015'})
                 args += ["-platform win32-msvc2015"]
             if self.settings.compiler.version == "12":
-                env_build.vars.update({'QMAKESPEC': 'win32-msvc2013'})
+                env.update({'QMAKESPEC': 'win32-msvc2013'})
                 args += ["-platform win32-msvc2013"]
             if self.settings.compiler.version == "11":
-                env_build.vars.update({'QMAKESPEC': 'win32-msvc2012'})
+                env.update({'QMAKESPEC': 'win32-msvc2012'})
                 args += ["-platform win32-msvc2012"]
             if self.settings.compiler.version == "10":
-                env_build.vars.update({'QMAKESPEC': 'win32-msvc2010'})
+                env.update({'QMAKESPEC': 'win32-msvc2010'})
                 args += ["-platform win32-msvc2010"]
 
-        # Workaround for conan-io/conan#1408
-        for name, value in env_build.vars.items():
-            if not value:
-                del env_build.vars[name]
-        print("build vars:\n%s" % env_build.vars)
+        print("before PATH = %s" % os.environ['PATH'])
+        print("before LIB = %s" % os.environ['LIB'])
         print("----------")
-        with tools.environment_append(env_build.vars):
-            print("PATH = %s" % os.environ['PATH'])
-            print("LIB = %s" % os.environ['LIB'])
+
+        env_build = VisualStudioBuildEnvironment(self)
+        env.update(env_build.vars)
+
+        # Workaround for conan-io/conan#1408
+        for name, value in env.items():
+            if not value:
+                del env[name]
+        print("build vars:\n%s" % env)
+        print("----------")
+        with tools.environment_append(env):
+            print("after PATH = %s" % os.environ['PATH'])
+            print("after LIB = %s" % os.environ['LIB'])
             print("----------")
             vcvars = tools.vcvars_command(self.settings)
 
