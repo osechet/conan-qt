@@ -175,11 +175,10 @@ class QtConan(ConanFile):
                 args += ["-platform win32-msvc2010"]
 
         # Workaround for conan-io/conan#1408
-        env_build.vars.update({'LIB': []})
+        for name, value in env_build.vars.items():
+            if not value:
+                del env_build.vars[name]
         print("build vars:\n%s" % env_build.vars)
-        print("----------")
-        if isinstance(env_build.vars['LIB'], list):
-            print("LIB is a list")
         print("----------")
         with tools.environment_append(env_build.vars):
             print("PATH = %s" % os.environ['PATH'])
