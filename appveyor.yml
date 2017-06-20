@@ -13,12 +13,12 @@ environment:
     CONAN_UPLOAD: "https://api.bintray.com/conan/osechet/Conan"
 
     matrix:
+        - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 6.2@x86_64@seh@posix"
+          CONAN_TOTAL_PAGES: 14
+          CONAN_CURRENT_PAGE: 1
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
           CONAN_TOTAL_PAGES: 4
-          CONAN_CURRENT_PAGE: 1
-        - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 6.2@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 14
           CONAN_CURRENT_PAGE: 1
 
         - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 6.2@x86_64@seh@posix"
@@ -75,5 +75,4 @@ install:
   - conan user # It creates the conan data directory
 
 test_script:
-  - set
   - python build.py
