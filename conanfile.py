@@ -191,11 +191,6 @@ class QtConan(ConanFile):
             self.run("cd %s && %s && %s install" % (self.source_dir, vcvars, build_command))
 
     def _build_mingw(self, args):
-        clang_path = find_executable("clang-cl.exe")
-        self.output.info("clang: %s" % clang_path)
-        gpp_path = find_executable("g++.exe")
-        self.output.info("g++: %s" % gpp_path)
-
         env_build = AutoToolsBuildEnvironment(self)
         env = {'PATH': ['%s/bin' % self.conanfile_directory,
                         '%s/qtbase/bin' % self.conanfile_directory,
@@ -203,21 +198,18 @@ class QtConan(ConanFile):
                         '%s/qtrepotools/bin' % self.conanfile_directory],
                'QMAKESPEC': 'win32-g++'}
         env.update(env_build.vars)
-        self.output.info("env_build =\n%s" % env_build.vars)
-        self.output.info("----------")
         with tools.environment_append(env):
             # Workaround for configure using clang first if in the path
             new_path = []
             for item in os.environ['PATH'].split(';'):
                 if item != 'C:\\Program Files\\LLVM\\bin':
                     new_path.append(item)
-            os.environ['PATH'] = new_path
+            os.environ['PATH'] = ';'.join(new_path)
             # end workaround
             args += ["-developer-build",
                      "-opengl %s" % self.options.opengl,
                      "-platform win32-g++"]
 
-            self.run("set")
             self.output.info("Using '%s' threads" % str(cpu_count()))
             self.run("cd %s && configure.bat %s"
                      % (self.source_dir, " ".join(args)))
