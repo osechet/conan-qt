@@ -75,6 +75,4 @@ install:
   - conan user # It creates the conan data directory
 
 test_script:
-  - clang-cl.exe
-  - g++.exe
   - python build.py
