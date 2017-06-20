@@ -144,6 +144,8 @@ class QtConan(ConanFile):
             self._build_unix(args)
 
     def _build_msvc(self, args):
+        self.run("set")
+
         build_command = find_executable("jom.exe")
         if build_command:
             build_args = ["-j", str(cpu_count())]
