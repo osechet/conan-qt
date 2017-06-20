@@ -174,13 +174,16 @@ class QtConan(ConanFile):
                 env_build.vars.update({'QMAKESPEC': 'win32-msvc2010'})
                 args += ["-platform win32-msvc2010"]
 
-        # Fix bug with tools.environment_append removing empty LIB
+        # Workaround for conan-io/conan#1408
         env_build.vars.update({'LIB': []})
-        print(env_build.vars)
+        print("build vars:\n%s" % env_build.vars)
+        print("----------")
+        if isinstance(env_build.vars['LIB'], list):
+            print("LIB is a list")
         print("----------")
         with tools.environment_append(env_build.vars):
-            print(os.environ['PATH'])
-            print(os.environ['LIB'])
+            print("PATH = %s" % os.environ['PATH'])
+            print("LIB = %s" % os.environ['LIB'])
             print("----------")
             vcvars = tools.vcvars_command(self.settings)
 
