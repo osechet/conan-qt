@@ -173,6 +173,7 @@ class QtConan(ConanFile):
                 env_build.vars.update({'QMAKESPEC': 'win32-msvc2010'})
                 args += ["-platform win32-msvc2010"]
 
+        print(env_build.vars)
         with tools.environment_append(env_build.vars):
             vcvars = tools.vcvars_command(self.settings)
 
