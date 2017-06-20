@@ -145,6 +145,7 @@ class QtConan(ConanFile):
 
     def _build_msvc(self, args):
         self.run("set")
+        print("----------")
 
         build_command = find_executable("jom.exe")
         if build_command:
@@ -156,8 +157,8 @@ class QtConan(ConanFile):
 
         env_build = VisualStudioBuildEnvironment(self)
         env_build.vars.update({'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
-                        '%s/gnuwin32/bin' % self.conanfile_directory,
-                        '%s/qtrepotools/bin' % self.conanfile_directory]})
+                                        '%s/gnuwin32/bin' % self.conanfile_directory,
+                                        '%s/qtrepotools/bin' % self.conanfile_directory]})
         # it seems not enough to set the vcvars for older versions
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
@@ -174,7 +175,14 @@ class QtConan(ConanFile):
                 args += ["-platform win32-msvc2010"]
 
         print(env_build.vars)
+        print("----------")
+        print(env_build.vars['PATH'])
+        print(env_build.vars['LIB'])
+        print("----------")
         with tools.environment_append(env_build.vars):
+            print(os.environ['PATH'])
+            print(env_build.vars['LIB'])
+            print("----------")
             vcvars = tools.vcvars_command(self.settings)
 
             args += ["-opengl %s" % self.options.opengl]
