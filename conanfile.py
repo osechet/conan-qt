@@ -33,7 +33,7 @@ class QtConan(ConanFile):
     name = "Qt"
     version = "5.7.1"
     description = "Conan.io package for Qt library."
-    sourceDir = "qt5"
+    source_dir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -106,14 +106,14 @@ class QtConan(ConanFile):
 
         major = ".".join(self.version.split(".")[:2])
         self.run("git clone https://code.qt.io/qt/qt5.git")
-        self.run("cd %s && git checkout %s" % (self.sourceDir, major))
+        self.run("cd %s && git checkout %s" % (self.source_dir, major))
         self.run("cd %s && perl init-repository --no-update --module-subset=%s"
-                 % (self.sourceDir, ",".join(submodules)))
+                 % (self.source_dir, ",".join(submodules)))
         self.run("cd %s && git checkout v%s && git submodule update"
-                 % (self.sourceDir, self.version))
+                 % (self.source_dir, self.version))
 
         if self.settings.os != "Windows":
-            self.run("chmod +x ./%s/configure" % self.sourceDir)
+            self.run("chmod +x ./%s/configure" % self.source_dir)
         else:
             # Fix issue with sh.exe and cmake on Windows
             # This solution isn't good at all but I cannot find anything else
@@ -183,14 +183,19 @@ class QtConan(ConanFile):
 
             args += ["-opengl %s" % self.options.opengl]
 
-            self.run("cd %s && %s && set" % (self.sourceDir, vcvars))
+            self.run("cd %s && %s && set" % (self.source_dir, vcvars))
             self.run("cd %s && %s && configure %s"
-                     % (self.sourceDir, vcvars, " ".join(args)))
+                     % (self.source_dir, vcvars, " ".join(args)))
             self.run("cd %s && %s && %s %s"
-                     % (self.sourceDir, vcvars, build_command, " ".join(build_args)))
-            self.run("cd %s && %s && %s install" % (self.sourceDir, vcvars, build_command))
+                     % (self.source_dir, vcvars, build_command, " ".join(build_args)))
+            self.run("cd %s && %s && %s install" % (self.source_dir, vcvars, build_command))
 
     def _build_mingw(self, args):
+        clang_path = find_executable("clang-cl.exe")
+        self.output.info("clang: %s" % clang_path)
+        gpp_path = find_executable("g++.exe")
+        self.output.info("g++: %s" % gpp_path)
+
         env_build = AutoToolsBuildEnvironment(self)
         env = {'PATH': ['%s/bin' % self.conanfile_directory,
                         '%s/qtbase/bin' % self.conanfile_directory,
@@ -208,10 +213,10 @@ class QtConan(ConanFile):
             self.run("set")
             self.output.info("Using '%s' threads" % str(cpu_count()))
             self.run("cd %s && configure.bat %s"
-                     % (self.sourceDir, " ".join(args)))
+                     % (self.source_dir, " ".join(args)))
             self.run("cd %s && mingw32-make -j %s"
-                     % (self.sourceDir, str(cpu_count())))
-            self.run("cd %s && mingw32-make install" % (self.sourceDir))
+                     % (self.source_dir, str(cpu_count())))
+            self.run("cd %s && mingw32-make install" % (self.source_dir))
 
     def _build_unix(self, args):
         if self.settings.os == "Linux":
@@ -224,9 +229,9 @@ class QtConan(ConanFile):
                 args += ["-platform macx-clang-32"]
 
         self.output.info("Using '%s' threads" % str(cpu_count()))
-        self.run("cd %s && ./configure %s" % (self.sourceDir, " ".join(args)))
-        self.run("cd %s && make -j %s" % (self.sourceDir, str(cpu_count())))
-        self.run("cd %s && make install" % (self.sourceDir))
+        self.run("cd %s && ./configure %s" % (self.source_dir, " ".join(args)))
+        self.run("cd %s && make -j %s" % (self.source_dir, str(cpu_count())))
+        self.run("cd %s && make install" % (self.source_dir))
 
     def package_info(self):
         libs = ['Concurrent', 'Core', 'DBus',
