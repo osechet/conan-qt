@@ -206,6 +206,13 @@ class QtConan(ConanFile):
         self.output.info("env_build =\n%s" % env_build.vars)
         self.output.info("----------")
         with tools.environment_append(env):
+            # Workaround for configure using clang first if in the path
+            new_path = []
+            for item in os.environ['PATH'].split(';'):
+                if item != 'C:\\Program Files\\LLVM\\bin':
+                    new_path.append(item)
+            os.environ['PATH'] = new_path
+            # end workaround
             args += ["-developer-build",
                      "-opengl %s" % self.options.opengl,
                      "-platform win32-g++"]
