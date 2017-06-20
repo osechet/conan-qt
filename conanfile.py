@@ -198,12 +198,14 @@ class QtConan(ConanFile):
                         '%s/qtrepotools/bin' % self.conanfile_directory],
                'QMAKESPEC': 'win32-g++'}
         env.update(env_build.vars)
-        print(env_build.vars)
+        self.output.info("env_build =\n%s" % env_build.vars)
+        self.output.info("----------")
         with tools.environment_append(env):
             args += ["-developer-build",
                      "-opengl %s" % self.options.opengl,
                      "-platform win32-g++"]
 
+            self.run("set")
             self.output.info("Using '%s' threads" % str(cpu_count()))
             self.run("cd %s && configure.bat %s"
                      % (self.sourceDir, " ".join(args)))
