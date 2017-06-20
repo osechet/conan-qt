@@ -75,8 +75,8 @@ install:
   - conan user # It creates the conan data directory
 
 test_script:
-  - if not "%icl.exe%" == "" echo "icl"
-  - if not "%cl.exe%" == "" echo "cl"
-  - if not "%clang-cl.exe%" == "" echo "clang"
-  - if not "%g++.exe%" == "" echo "g++"
+  - icl.exe
+  - cl.exe
+  - clang-cl.exe
+  - g++.exe
   - python build.py
