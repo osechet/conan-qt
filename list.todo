@@ -1,0 +1,11 @@
+todo:
+- merge testing/5.7.1 to master     OK
+- open release/5.7.1 from master    OK
+- release stable/5.7.1
+- merge release/5.7.1 to master
+- merge master to testing/5.8.0
+- merge testing/5.8.0 to master
+- open release/5.8.0 from master
+- release stable/5.8.0
+- merge release/5.8.0 to master
+- open testing/5.9.0 from master
