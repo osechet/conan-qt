@@ -12,7 +12,7 @@ environment:
 
     matrix:
         - MINGW_CONFIGURATIONS: "5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 2
+          CONAN_TOTAL_PAGES: 9
           CONAN_CURRENT_PAGE: 1
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
@@ -20,7 +20,7 @@ environment:
           CONAN_CURRENT_PAGE: 1
 
         - MINGW_CONFIGURATIONS: "5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 2
+          CONAN_TOTAL_PAGES: 9
           CONAN_CURRENT_PAGE: 2
 
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
