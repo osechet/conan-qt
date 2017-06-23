@@ -9,7 +9,7 @@ Conan package for Qt
 
 [Conan.io](https://conan.io) package for [Qt](https://www.qt.io) library. This package includes by default the Qt Base module (Core, Gui, Widgets, Network, ...). Others modules can be added using options.
 
-The packages generated with this **conanfile** can be found in [conan.io](http://www.conan.io/source/Qt/5.7.1/osechet/stable).
+The packages generated with this **conanfile** can be found in [bintray.com](https://bintray.com/osechet/Conan).
 
 ## Reuse the package
 
