@@ -5,37 +5,23 @@ environment:
     PYTHON_VERSION: "2.7.8"
     PYTHON_ARCH: "32"
 
-    CONAN_REFERENCE: "Qt/5.7.1"
+    CONAN_REFERENCE: "Qt/5.8.0"
     CONAN_USERNAME: "osechet"
-    CONAN_CHANNEL: "stable"
+    CONAN_CHANNEL: "testing"
     VS150COMNTOOLS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\Tools\\"
 
     matrix:
-        - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 14
+        - MINGW_CONFIGURATIONS: "5.4@x86_64@seh@posix"
+          CONAN_TOTAL_PAGES: 9
           CONAN_CURRENT_PAGE: 1
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
           CONAN_TOTAL_PAGES: 4
           CONAN_CURRENT_PAGE: 1
 
-        - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 14
+        - MINGW_CONFIGURATIONS: "5.4@x86_64@seh@posix"
+          CONAN_TOTAL_PAGES: 9
           CONAN_CURRENT_PAGE: 2
-        - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 14
-          CONAN_CURRENT_PAGE: 3
-        - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 14
-          CONAN_CURRENT_PAGE: 4
-        - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 14
-          CONAN_CURRENT_PAGE: 5
-          CONAN_VISUAL_VERSIONS:
-        - MINGW_CONFIGURATIONS: "4.8@x86_64@seh@posix, 4.9@x86_64@seh@posix, 5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 14
-          CONAN_CURRENT_PAGE: 6
-          CONAN_VISUAL_VERSIONS:
 
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
