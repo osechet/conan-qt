@@ -3,7 +3,7 @@ import os
 from conans import ConanFile, CMake
 
 # This easily allows to copy the package in other user or channel
-CHANNEL = os.getenv("CONAN_CHANNEL", "testing")
+CHANNEL = os.getenv("CONAN_CHANNEL", "stable")
 USERNAME = os.getenv("CONAN_USERNAME", "osechet")
 
 class QtTestConan(ConanFile):
