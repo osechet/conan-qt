@@ -1,8 +1,8 @@
 
 import os
+from distutils.spawn import find_executable
 from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
 from conans.tools import cpu_count, os_info, SystemPackageTool
-from distutils.spawn import find_executable
 
 def which(program):
     """

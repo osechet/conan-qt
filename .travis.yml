@@ -2,7 +2,7 @@ env:
    global:
      - CONAN_REFERENCE: "Qt/5.8.0"
      - CONAN_USERNAME: "osechet"
-     - CONAN_CHANNEL: "testing"
+     - CONAN_CHANNEL: "stable"
      - CONAN_TOTAL_PAGES: 2
 
 linux: &linux
