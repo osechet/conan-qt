@@ -48,9 +48,10 @@ class QtConan(ConanFile):
         "tools": [True, False],
         "webengine": [True, False],
         "websockets": [True, False],
-        "xmlpatterns": [True, False]
+        "xmlpatterns": [True, False],
+        "openssl": ["no", "yes", "linked"]
     }
-    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False"
+    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=yes"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -182,6 +183,12 @@ class QtConan(ConanFile):
             vcvars = tools.vcvars_command(self.settings)
 
             args += ["-opengl %s" % self.options.opengl]
+            if self.options.openssl == "no":
+                args += ["-no-openssl"]
+            elif self.options.openssl == "yes":
+                args += ["-openssl"]
+            else:
+                args += ["-openssl-linked"]
 
             self.run("cd %s && %s && set" % (self.source_dir, vcvars))
             self.run("cd %s && %s && configure %s"
