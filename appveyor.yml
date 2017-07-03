@@ -8,7 +8,6 @@ environment:
     CONAN_REFERENCE: "Qt/5.8.0"
     CONAN_USERNAME: "osechet"
     CONAN_CHANNEL: "testing"
-    CONAN_UPLOAD_ONLY_WHEN_STABLE: true
     VS150COMNTOOLS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\Tools\\"
 
     matrix:

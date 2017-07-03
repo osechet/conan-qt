@@ -4,7 +4,6 @@ env:
      - CONAN_USERNAME: "osechet"
      - CONAN_CHANNEL: "testing"
      - CONAN_TOTAL_PAGES: 2
-     - CONAN_UPLOAD_ONLY_WHEN_STABLE: true
 
 linux: &linux
    os: linux
