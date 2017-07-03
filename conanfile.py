@@ -1,8 +1,8 @@
 
 import os
+from distutils.spawn import find_executable
 from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
 from conans.tools import cpu_count, os_info, SystemPackageTool
-from distutils.spawn import find_executable
 
 def which(program):
     """
@@ -51,7 +51,7 @@ class QtConan(ConanFile):
         "xmlpatterns": [True, False],
         "openssl": ["no", "yes", "linked"]
     }
-    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=no"
+    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=yes"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -81,6 +81,7 @@ class QtConan(ConanFile):
 
     def config_options(self):
         if self.settings.os != "Windows":
+            del self.options.opengl
             del self.options.openssl
 
     def requirements(self):
