@@ -79,6 +79,17 @@ class QtConan(ConanFile):
             installer.update() # Update the package database
             installer.install(" ".join(pack_names)) # Install the package
 
+    def config_options(self):
+        if self.settings.os != "Windows":
+            del self.options.openssl
+
+    def requirements(self):
+        if self.settings.os == "Windows":
+            if self.options.openssl == "yes":
+                self.requires("OpenSSL/1.0.2l@conan/stable", dev=True)
+            elif self.options.openssl == "linked":
+                self.requires("OpenSSL/1.0.2l@conan/stable")
+
     def source(self):
         submodules = ["qtbase"]
 
