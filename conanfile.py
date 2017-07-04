@@ -1,8 +1,8 @@
 
 import os
+from distutils.spawn import find_executable
 from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
 from conans.tools import cpu_count, os_info, SystemPackageTool
-from distutils.spawn import find_executable
 
 def which(program):
     """
@@ -78,6 +78,18 @@ class QtConan(ConanFile):
             installer = SystemPackageTool()
             installer.update() # Update the package database
             installer.install(" ".join(pack_names)) # Install the package
+
+    def config_options(self):
+        if self.settings.os != "Windows":
+            del self.options.opengl
+            del self.options.openssl
+
+    def requirements(self):
+        if self.settings.os == "Windows":
+            if self.options.openssl == "yes":
+                self.requires("OpenSSL/1.0.2l@conan/stable", dev=True)
+            elif self.options.openssl == "linked":
+                self.requires("OpenSSL/1.0.2l@conan/stable")
 
     def source(self):
         submodules = ["qtbase"]
