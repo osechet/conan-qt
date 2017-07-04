@@ -1,8 +1,8 @@
 
 import os
+from distutils.spawn import find_executable
 from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
 from conans.tools import cpu_count, os_info, SystemPackageTool
-from distutils.spawn import find_executable
 
 def which(program):
     """
@@ -48,9 +48,10 @@ class QtConan(ConanFile):
         "tools": [True, False],
         "webengine": [True, False],
         "websockets": [True, False],
-        "xmlpatterns": [True, False]
+        "xmlpatterns": [True, False],
+        "openssl": ["no", "yes", "linked"]
     }
-    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False"
+    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=no"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -77,6 +78,18 @@ class QtConan(ConanFile):
             installer = SystemPackageTool()
             installer.update() # Update the package database
             installer.install(" ".join(pack_names)) # Install the package
+
+    def config_options(self):
+        if self.settings.os != "Windows":
+            del self.options.opengl
+            del self.options.openssl
+
+    def requirements(self):
+        if self.settings.os == "Windows":
+            if self.options.openssl == "yes":
+                self.requires("OpenSSL/1.0.2l@conan/stable", dev=True)
+            elif self.options.openssl == "linked":
+                self.requires("OpenSSL/1.0.2l@conan/stable")
 
     def source(self):
         submodules = ["qtbase"]
@@ -182,6 +195,12 @@ class QtConan(ConanFile):
             vcvars = tools.vcvars_command(self.settings)
 
             args += ["-opengl %s" % self.options.opengl]
+            if self.options.openssl == "no":
+                args += ["-no-openssl"]
+            elif self.options.openssl == "yes":
+                args += ["-openssl"]
+            else:
+                args += ["-openssl-linked"]
 
             self.run("cd %s && %s && set" % (self.source_dir, vcvars))
             self.run("cd %s && %s && configure %s"

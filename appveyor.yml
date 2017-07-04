@@ -16,7 +16,7 @@ environment:
           CONAN_CURRENT_PAGE: 1
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
-          CONAN_TOTAL_PAGES: 4
+          CONAN_TOTAL_PAGES: 2
           CONAN_CURRENT_PAGE: 1
 
         - MINGW_CONFIGURATIONS: "5.4@x86_64@seh@posix"
@@ -25,32 +25,16 @@ environment:
 
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
-          CONAN_TOTAL_PAGES: 4
+          CONAN_TOTAL_PAGES: 2
           CONAN_CURRENT_PAGE: 2
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-          CONAN_VISUAL_VERSIONS: 12
-          CONAN_TOTAL_PAGES: 4
-          CONAN_CURRENT_PAGE: 3
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-          CONAN_VISUAL_VERSIONS: 12
-          CONAN_TOTAL_PAGES: 4
-          CONAN_CURRENT_PAGE: 4
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 14
-          CONAN_TOTAL_PAGES: 4
+          CONAN_TOTAL_PAGES: 2
           CONAN_CURRENT_PAGE: 1
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 14
-          CONAN_TOTAL_PAGES: 4
+          CONAN_TOTAL_PAGES: 2
           CONAN_CURRENT_PAGE: 2
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-          CONAN_VISUAL_VERSIONS: 14
-          CONAN_TOTAL_PAGES: 4
-          CONAN_CURRENT_PAGE: 3
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-          CONAN_VISUAL_VERSIONS: 14
-          CONAN_TOTAL_PAGES: 4
-          CONAN_CURRENT_PAGE: 4
 
 install:
   - set PATH=%PATH%;%PYTHON%/Scripts/
