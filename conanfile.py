@@ -190,8 +190,10 @@ class QtConan(ConanFile):
         # Workaround for conan-io/conan#1408
         for name, value in env.items():
             if not value:
-                self.output.info("env var %s defined with no value" % name)
                 del env[name]
+            elif not isinstance(value, list):
+                self.output.info("%s is not a list" % name)
+                self.output.info("%s = %s" % (name, value))
         with tools.environment_append(env):
             vcvars = tools.vcvars_command(self.settings)
 
