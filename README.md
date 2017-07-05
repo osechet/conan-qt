@@ -3,7 +3,7 @@ Conan package for Qt
 
 [![Build Status](https://travis-ci.org/osechet/conan-qt.svg?branch=stable/5.8.0)](https://travis-ci.org/osechet/conan-qt)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/gboj3x82d42eoasw/branch/stable/5.8.0?svg=true)](https://ci.appveyor.com/project/osechet/conan-qt)
+[![Build status](https://ci.appveyor.com/api/projects/status/gboj3x82d42eoasw/branch/release/5.8.0?svg=true)](https://ci.appveyor.com/project/osechet/conan-qt)
 
 [ ![Download](https://api.bintray.com/packages/osechet/Conan/Qt%3Aosechet/images/download.svg?version=5.8.0%3Astable) ](https://bintray.com/osechet/Conan/Qt%3Aosechet/5.8.0%3Astable/link)
 
