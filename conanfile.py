@@ -193,7 +193,8 @@ class QtConan(ConanFile):
                 del env[name]
             elif not isinstance(value, list):
                 self.output.info("%s is not a list" % name)
-                self.output.info("%s = %s" % (name, value))
+                value_list = value.split(";")
+                env[name] = value_list
         with tools.environment_append(env):
             vcvars = tools.vcvars_command(self.settings)
 
