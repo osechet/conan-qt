@@ -51,7 +51,7 @@ class QtConan(ConanFile):
         "xmlpatterns": [True, False],
         "openssl": ["no", "yes", "linked"]
     }
-    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=linked"
+    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=yes"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -85,10 +85,10 @@ class QtConan(ConanFile):
             del self.options.openssl
 
     def requirements(self):
+        self.requires("OpenSSL/1.0.2l@conan/stable")
+
         if self.settings.os == "Windows":
-            if self.options.openssl == "yes":
-                self.requires("OpenSSL/1.0.2l@conan/stable")
-            elif self.options.openssl == "linked":
+            if self.options.openssl == "yes" or self.options.openssl == "linked":
                 self.requires("OpenSSL/1.0.2l@conan/stable")
 
     def source(self):
@@ -192,7 +192,7 @@ class QtConan(ConanFile):
             if not value:
                 del env[name]
             elif not isinstance(value, list):
-                self.output.info("%s is not a list" % name)
+                # If the value if not a list the old value will be erased
                 value_list = value.split(";")
                 env[name] = value_list
         with tools.environment_append(env):
@@ -203,8 +203,12 @@ class QtConan(ConanFile):
                 args += ["-no-openssl"]
             elif self.options.openssl == "yes":
                 args += ["-openssl"]
+                args += ["-I", self.deps_cpp_info["OpenSSL"].include_paths]
+                args += ["-L", self.deps_cpp_info["OpenSSL"].lib_paths]
             else:
                 args += ["-openssl-linked"]
+                args += ["-I", self.deps_cpp_info["OpenSSL"].include_paths]
+                args += ["-L", self.deps_cpp_info["OpenSSL"].lib_paths]
 
             self.run("cd %s && %s && set" % (self.source_dir, vcvars))
             self.run("cd %s && %s && configure %s"
