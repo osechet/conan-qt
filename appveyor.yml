@@ -8,31 +8,16 @@ environment:
     CONAN_REFERENCE: "Qt/5.8.0"
     CONAN_USERNAME: "osechet"
     CONAN_CHANNEL: "testing"
+    CONAN_UPLOAD_ONLY_WHEN_STABLE: True
     VS150COMNTOOLS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\Tools\\"
 
     matrix:
-        - MINGW_CONFIGURATIONS: "5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 9
-          CONAN_CURRENT_PAGE: 1
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
           CONAN_TOTAL_PAGES: 2
           CONAN_CURRENT_PAGE: 1
-
-        - MINGW_CONFIGURATIONS: "5.4@x86_64@seh@posix"
-          CONAN_TOTAL_PAGES: 9
-          CONAN_CURRENT_PAGE: 2
-
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
-          CONAN_TOTAL_PAGES: 2
-          CONAN_CURRENT_PAGE: 2
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-          CONAN_VISUAL_VERSIONS: 14
-          CONAN_TOTAL_PAGES: 2
-          CONAN_CURRENT_PAGE: 1
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-          CONAN_VISUAL_VERSIONS: 14
           CONAN_TOTAL_PAGES: 2
           CONAN_CURRENT_PAGE: 2
 

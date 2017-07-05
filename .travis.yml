@@ -3,6 +3,7 @@ env:
      - CONAN_REFERENCE: "Qt/5.8.0"
      - CONAN_USERNAME: "osechet"
      - CONAN_CHANNEL: "testing"
+     - CONAN_UPLOAD_ONLY_WHEN_STABLE: True
      - CONAN_TOTAL_PAGES: 2
 
 linux: &linux
