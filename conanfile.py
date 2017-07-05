@@ -203,12 +203,12 @@ class QtConan(ConanFile):
                 args += ["-no-openssl"]
             elif self.options.openssl == "yes":
                 args += ["-openssl"]
-                args += ["-I", self.deps_cpp_info["OpenSSL"].include_paths]
-                args += ["-L", self.deps_cpp_info["OpenSSL"].lib_paths]
+                args += map('-I {0}'.format, self.deps_cpp_info["OpenSSL"].include_paths)
+                args += map('-I {0}'.format, self.deps_cpp_info["OpenSSL"].lib_paths)
             else:
                 args += ["-openssl-linked"]
-                args += ["-I", self.deps_cpp_info["OpenSSL"].include_paths]
-                args += ["-L", self.deps_cpp_info["OpenSSL"].lib_paths]
+                args += map('-I {0}'.format, self.deps_cpp_info["OpenSSL"].include_paths)
+                args += map('-I {0}'.format, self.deps_cpp_info["OpenSSL"].lib_paths)
 
             self.run("cd %s && %s && set" % (self.source_dir, vcvars))
             self.run("cd %s && %s && configure %s"
