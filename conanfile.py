@@ -87,7 +87,7 @@ class QtConan(ConanFile):
     def requirements(self):
         if self.settings.os == "Windows":
             if self.options.openssl == "yes":
-                self.requires("OpenSSL/1.0.2l@conan/stable", dev=True)
+                self.requires("OpenSSL/1.0.2l@conan/stable")
             elif self.options.openssl == "linked":
                 self.requires("OpenSSL/1.0.2l@conan/stable")
 
@@ -190,6 +190,7 @@ class QtConan(ConanFile):
         # Workaround for conan-io/conan#1408
         for name, value in env.items():
             if not value:
+                self.output.info("env var %s defined with no value" % name)
                 del env[name]
         with tools.environment_append(env):
             vcvars = tools.vcvars_command(self.settings)
