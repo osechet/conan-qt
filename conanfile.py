@@ -38,7 +38,9 @@ class QtConan(ConanFile):
     options = {
         "shared": [True, False],
         "opengl": ["desktop", "dynamic"],
+        "activeqt": [True, False],
         "canvas3d": [True, False],
+        "connectivity": [True, False],
         "gamepad": [True, False],
         "graphicaleffects": [True, False],
         "imageformats": [True, False],
@@ -46,12 +48,13 @@ class QtConan(ConanFile):
         "serialport": [True, False],
         "svg": [True, False],
         "tools": [True, False],
+        "translations": [True, False],
         "webengine": [True, False],
         "websockets": [True, False],
         "xmlpatterns": [True, False],
         "openssl": ["no", "yes", "linked"]
     }
-    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=no"
+    default_options = "shared=True", "opengl=desktop", "activeqt=False", "canvas3d=False", "connectivity=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "translations=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=no"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -94,8 +97,12 @@ class QtConan(ConanFile):
     def source(self):
         submodules = ["qtbase"]
 
+        if self.options.activeqt:
+            sumodules.append("qtactiveqt")
         if self.options.canvas3d:
             submodules.append("qtcanvas3d")
+        if self.options.connectivity:
+            sumodules.append("qtconnectivity")
         if self.options.gamepad:
             submodules.append("qtgamepad")
         if self.options.graphicaleffects:
@@ -110,6 +117,8 @@ class QtConan(ConanFile):
             submodules.append("qtsvg")
         if self.options.tools:
             submodules.append("qttools")
+        if self.options.translations:
+            sumodules.append("qttranslations")
         if self.options.webengine:
             submodules.append("qtwebengine")
         if self.options.websockets:
