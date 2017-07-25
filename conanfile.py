@@ -117,13 +117,9 @@ class QtConan(ConanFile):
         if self.options.xmlpatterns:
             submodules.append("qtxmlpatterns")
 
-        major = ".".join(self.version.split(".")[:2])
         self.run("git clone https://code.qt.io/qt/qt5.git")
-        self.run("cd %s && git checkout %s" % (self.source_dir, major))
-        self.run("cd %s && perl init-repository --no-update --module-subset=%s"
-                 % (self.source_dir, ",".join(submodules)))
-        self.run("cd %s && git checkout v%s && git submodule update"
-                 % (self.source_dir, self.version))
+        self.run("cd %s && git checkout v%s" % (self.source_dir, self.version))
+        self.run("cd %s && git submodule update --init %s" % (self.source_dir, " ".join(submodules)))
 
         if self.settings.os != "Windows":
             self.run("chmod +x ./%s/configure" % self.source_dir)
