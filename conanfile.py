@@ -59,6 +59,12 @@ class QtConan(ConanFile):
             installer.update() # Update the package database
             installer.install(" ".join(pack_names)) # Install the package
 
+    def configure(self):
+        if self.settings.os == "Windows":
+            if self.settings.compiler == "gcc":
+                self.options["mingw_installer"].version = self.settings.compiler.version
+
+
     def config_options(self):
         if self.settings.os != "Windows":
             del self.options.opengl
@@ -70,6 +76,8 @@ class QtConan(ConanFile):
                 self.requires("OpenSSL/1.0.2l@conan/stable", dev=True)
             elif self.options.openssl == "linked":
                 self.requires("OpenSSL/1.0.2l@conan/stable")
+            if self.settings.compiler == "gcc":
+                self.requires("mingw_installer/0.1@lasote/testing")
 
     def source(self):
         submodules = ["qtbase"]
