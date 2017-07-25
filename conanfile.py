@@ -225,8 +225,7 @@ class QtConan(ConanFile):
                     new_path.append(item)
             os.environ['PATH'] = ';'.join(new_path)
             # end workaround
-            args += ["-developer-build",
-                     "-opengl %s" % self.options.opengl,
+            args += ["-opengl %s" % self.options.opengl,
                      "-platform win32-g++"]
 
             self.output.info("Using '%s' threads" % str(cpu_count()))
