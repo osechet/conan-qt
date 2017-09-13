@@ -10,7 +10,6 @@ class QtConan(ConanFile):
     name = "Qt"
     version = "5.8.0"
     description = "Conan.io package for Qt library."
-    source_dir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
     submodules = [
         "qt3d",
@@ -55,6 +54,8 @@ class QtConan(ConanFile):
         "opengl": ["desktop", "dynamic"],
         "openssl": ["no", "yes", "linked"],
         }, **{module[2:]: [True,False] for module in submodules})
+
+    no_copy_source = True
 
     default_options = ("shared=True", "opengl=desktop", "openssl=no") + tuple(module[2:] + "=False" for module in submodules)
     url = "http://github.com/osechet/conan-qt"
@@ -104,7 +105,7 @@ class QtConan(ConanFile):
         else:
             SystemPackageTool().install("pv")
             self.run("wget -qO- %s.tar.xz | pv | tar -xJ " % url)
-        shutil.move("qt-everywhere-opensource-src-%s" % self.version, self.source_dir)
+        shutil.move("qt-everywhere-opensource-src-%s" % self.version, "qt5")
 
     def build(self):
         """ Define your project building. You decide the way of building it
@@ -126,6 +127,9 @@ class QtConan(ConanFile):
             if self.settings.compiler == "Visual Studio":
                 self._build_msvc(args)
             else:
+                configurePath = os.path.join(self.build_folder, "qtbase", "tools", "configure")
+                os.makedirs(configurePath)
+                shutil.copy2(os.path.join(self.source_folder, "qt5", "qtbase", "tools", "configure", "configure_pch.h"), configurePath)
                 self._build_mingw(args)
         else:
             self._build_unix(args)
@@ -177,12 +181,12 @@ class QtConan(ConanFile):
             else:
                 args += ["-openssl-linked"]
 
-            self.run("cd %s && %s && set" % (self.source_dir, vcvars))
-            self.run("cd %s && %s && configure %s"
-                     % (self.source_dir, vcvars, " ".join(args)))
-            self.run("cd %s && %s && %s %s"
-                     % (self.source_dir, vcvars, build_command, " ".join(build_args)))
-            self.run("cd %s && %s && %s install" % (self.source_dir, vcvars, build_command))
+            self.run("%s && set" % vcvars)
+            self.run("%s && %s/qt5/configure %s"
+                     % (vcvars, self.source_folder, " ".join(args)))
+            self.run("%s && %s %s"
+                     % (vcvars, build_command, " ".join(build_args)))
+            self.run("%s && %s install" % (vcvars, build_command))
 
     def _build_mingw(self, args):
         env_build = AutoToolsBuildEnvironment(self)
@@ -203,12 +207,12 @@ class QtConan(ConanFile):
             args += ["-opengl %s" % self.options.opengl,
                      "-platform win32-g++"]
 
-            self.output.info("Using '%s' threads" % str(cpu_count()))
-            self.run("cd %s && configure.bat %s"
-                     % (self.source_dir, " ".join(args)))
-            self.run("cd %s && mingw32-make -j %s"
-                     % (self.source_dir, str(cpu_count())))
-            self.run("cd %s && mingw32-make install" % (self.source_dir))
+            self.output.info("Using '%s' threads" % cpu_count())
+            self.run("%s/qt5/configure.bat %s"
+                     % (self.source_folder, " ".join(args)))
+            self.run("mingw32-make -j %s"
+                     % cpu_count())
+            self.run("mingw32-make install")
 
     def _build_unix(self, args):
         if self.settings.os == "Linux":
@@ -220,10 +224,10 @@ class QtConan(ConanFile):
             if self.settings.arch == "x86":
                 args += ["-platform macx-clang-32"]
 
-        self.output.info("Using '%s' threads" % str(cpu_count()))
-        self.run("cd %s && ./configure %s" % (self.source_dir, " ".join(args)))
-        self.run("cd %s && make -j %s" % (self.source_dir, str(cpu_count())))
-        self.run("cd %s && make install" % (self.source_dir))
+        self.output.info("Using '%s' threads" % cpu_count())
+        self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
+        self.run("make -j %s" % cpu_count())
+        self.run("make install")
 
     def package_info(self):
         libs = ['Concurrent', 'Core', 'DBus',
