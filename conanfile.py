@@ -173,8 +173,7 @@ class QtConan(ConanFile):
             else:
                 args += ["-openssl-linked"]
 
-            self.run("cd %s && %s && set" % (self.source_dir, vcvars))
-            self.run("cd %s && %s && configure %s"
+            self.run("cd %s && %s && configure.bat %s"
                      % (self.source_dir, vcvars, " ".join(args)))
             self.run("cd %s && %s && %s %s"
                      % (self.source_dir, vcvars, build_command, " ".join(build_args)))
