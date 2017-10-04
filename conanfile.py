@@ -162,10 +162,6 @@ class QtConan(ConanFile):
         env_build = VisualStudioBuildEnvironment(self)
         env.update(env_build.vars)
 
-        # Workaround for conan-io/conan#1408
-        for name, value in env.items():
-            if not value:
-                del env[name]
         with tools.environment_append(env):
             vcvars = tools.vcvars_command(self.settings)
 
