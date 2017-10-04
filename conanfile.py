@@ -72,7 +72,7 @@ class QtConan(ConanFile):
                 self.requires("OpenSSL/1.0.2l@conan/stable")
 
     def source(self):
-        submodules = ["qtbase"]
+        submodules = ["qtbase", "qtrepotools", "qtdeclarative"]
 
         if self.options.activeqt:
             sumodules.append("qtactiveqt")
