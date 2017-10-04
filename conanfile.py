@@ -75,11 +75,11 @@ class QtConan(ConanFile):
         submodules = ["qtbase", "qtrepotools", "qtdeclarative"]
 
         if self.options.activeqt:
-            sumodules.append("qtactiveqt")
+            submodules.append("qtactiveqt")
         if self.options.canvas3d:
             submodules.append("qtcanvas3d")
         if self.options.connectivity:
-            sumodules.append("qtconnectivity")
+            submodules.append("qtconnectivity")
         if self.options.gamepad:
             submodules.append("qtgamepad")
         if self.options.graphicaleffects:
@@ -95,7 +95,7 @@ class QtConan(ConanFile):
         if self.options.tools:
             submodules.append("qttools")
         if self.options.translations:
-            sumodules.append("qttranslations")
+            submodules.append("qttranslations")
         if self.options.webengine:
             submodules.append("qtwebengine")
         if self.options.websockets:
