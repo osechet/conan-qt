@@ -26,12 +26,17 @@ class QtConan(ConanFile):
         "svg": [True, False],
         "tools": [True, False],
         "translations": [True, False],
+        "declarative": [True, False],
         "webengine": [True, False],
         "websockets": [True, False],
         "xmlpatterns": [True, False],
         "openssl": ["no", "yes", "linked"]
     }
-    default_options = "shared=True", "opengl=desktop", "activeqt=False", "canvas3d=False", "connectivity=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "translations=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=no"
+    default_options = "shared=True", "opengl=desktop", "activeqt=False", \
+        "canvas3d=False", "connectivity=False", "gamepad=False", "graphicaleffects=False", \
+        "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", \
+        "translations=False", "declarative=False", "webengine=False", "websockets=False", \
+        "xmlpatterns=False", "openssl=no"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -72,14 +77,14 @@ class QtConan(ConanFile):
                 self.requires("OpenSSL/1.0.2l@conan/stable")
 
     def source(self):
-        submodules = ["qtbase"]
+        submodules = ["qtbase", "qtrepotools"]
 
         if self.options.activeqt:
-            sumodules.append("qtactiveqt")
+            submodules.append("qtactiveqt")
         if self.options.canvas3d:
             submodules.append("qtcanvas3d")
         if self.options.connectivity:
-            sumodules.append("qtconnectivity")
+            submodules.append("qtconnectivity")
         if self.options.gamepad:
             submodules.append("qtgamepad")
         if self.options.graphicaleffects:
@@ -95,7 +100,9 @@ class QtConan(ConanFile):
         if self.options.tools:
             submodules.append("qttools")
         if self.options.translations:
-            sumodules.append("qttranslations")
+            submodules.append("qttranslations")
+        if self.options.declarative:
+            submodules.append("qtdeclarative")
         if self.options.webengine:
             submodules.append("qtwebengine")
         if self.options.websockets:
@@ -162,10 +169,6 @@ class QtConan(ConanFile):
         env_build = VisualStudioBuildEnvironment(self)
         env.update(env_build.vars)
 
-        # Workaround for conan-io/conan#1408
-        for name, value in env.items():
-            if not value:
-                del env[name]
         with tools.environment_append(env):
             vcvars = tools.vcvars_command(self.settings)
 
@@ -177,8 +180,7 @@ class QtConan(ConanFile):
             else:
                 args += ["-openssl-linked"]
 
-            self.run("cd %s && %s && set" % (self.source_dir, vcvars))
-            self.run("cd %s && %s && configure %s"
+            self.run("cd %s && %s && configure.bat %s"
                      % (self.source_dir, vcvars, " ".join(args)))
             self.run("cd %s && %s && %s %s"
                      % (self.source_dir, vcvars, build_command, " ".join(build_args)))
