@@ -40,6 +40,7 @@ class QtConan(ConanFile):
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
+    exports_sources = ["qt.conf"]
 
     def system_requirements(self):
         pack_names = None
@@ -226,6 +227,12 @@ class QtConan(ConanFile):
         self.run("cd %s && ./configure %s" % (self.source_dir, " ".join(args)))
         self.run("cd %s && make -j %s" % (self.source_dir, str(cpu_count())))
         self.run("cd %s && make install" % (self.source_dir))
+
+    def package(self):
+        # Qt's installation prefix is hardcoded during the build. In order to
+        # make this package relocatable, we need to provide qt.conf
+        self.copy("qt.conf", dst="bin", keep_path=False)
+
 
     def package_info(self):
         libs = ['Concurrent', 'Core', 'DBus',
