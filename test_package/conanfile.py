@@ -1,22 +1,27 @@
-
+from conans.model.conan_file import ConanFile
+from conans import CMake
 import os
-from conans import ConanFile, CMake
 
-# This easily allows to copy the package in other user or channel
-CHANNEL = os.getenv("CONAN_CHANNEL", "stable")
-USERNAME = os.getenv("CONAN_USERNAME", "osechet")
+############### CONFIGURE THESE VALUES ##################
+default_user = "osechet"
+default_channel = "stable"
+#########################################################
+
+channel = os.getenv("CONAN_CHANNEL", default_channel)
+username = os.getenv("CONAN_USERNAME", default_user)
 
 class QtTestConan(ConanFile):
     """ Qt Conan package test """
-
-    requires = "Qt/5.9.2@%s/%s" % (USERNAME, CHANNEL)
+    name = "DefaultName"
+    version = "0.1"
+    requires = "Qt/5.9.2@%s/%s" % (username, channel)
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "virtualenv"
 
     def build(self):
-        cmake = CMake(self.settings)
-        self.run('cmake "%s" %s' % (self.conanfile_directory, cmake.command_line))
-        self.run("cmake --build . %s" % cmake.build_config)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def test(self):
         if self.settings.os == "Windows":
