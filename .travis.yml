@@ -1,6 +1,6 @@
 env:
    global:
-     - CONAN_REFERENCE: "Qt/5.8.0"
+     - CONAN_REFERENCE: "Qt/5.9.2"
      - CONAN_USERNAME: "osechet"
      - CONAN_CHANNEL: "stable"
      - CONAN_TOTAL_PAGES: 2
