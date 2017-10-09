@@ -186,28 +186,22 @@ class QtConan(ConanFile):
 
         env_build = VisualStudioBuildEnvironment(self)
         env.update(env_build.vars)
+        vcvars = tools.vcvars_command(self.settings)
 
-        # Workaround for conan-io/conan#1408
-        for name, value in env.items():
-            if not value:
-                del env[name]
-        with tools.environment_append(env):
-            vcvars = tools.vcvars_command(self.settings)
+        args += ["-opengl %s" % self.options.opengl]
+        if self.options.openssl == "no":
+            args += ["-no-openssl"]
+        elif self.options.openssl == "yes":
+            args += ["-openssl"]
+        else:
+            args += ["-openssl-linked"]
 
-            args += ["-opengl %s" % self.options.opengl]
-            if self.options.openssl == "no":
-                args += ["-no-openssl"]
-            elif self.options.openssl == "yes":
-                args += ["-openssl"]
-            else:
-                args += ["-openssl-linked"]
-
-            self.run("cd %s && %s && set" % (self.source_dir, vcvars))
-            self.run("cd %s && %s && configure %s"
-                     % (self.source_dir, vcvars, " ".join(args)))
-            self.run("cd %s && %s && %s %s"
-                     % (self.source_dir, vcvars, build_command, " ".join(build_args)))
-            self.run("cd %s && %s && %s install" % (self.source_dir, vcvars, build_command))
+        self.run("%s && cd %s && set" % (vcvars, self.source_dir))
+        self.run("%s && cd %s && configure %s"
+                 % (vcvars, self.source_dir, " ".join(args)))
+        self.run("%s && cd %s && %s %s"
+                 % (vcvars, self.source_dir, build_command, " ".join(build_args)))
+        self.run("%s && cd %s && %s install" % (vcvars, self.source_dir, build_command))
 
     def _build_mingw(self, args):
         env_build = AutoToolsBuildEnvironment(self)
