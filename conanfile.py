@@ -1,6 +1,6 @@
 
 import os
-from distutils.spawn import find_executable
+import shutil
 from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
 from conans.tools import cpu_count, os_info, SystemPackageTool
 
@@ -10,28 +10,54 @@ class QtConan(ConanFile):
     name = "Qt"
     version = "5.8.0"
     description = "Conan.io package for Qt library."
-    source_dir = "qt5"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
+    submodules = [
+        "qt3d",
+        "qtactiveqt",
+        "qtandroidextras",
+        "qtcanvas3d",
+        "qtcharts",
+        "qtconnectivity",
+        "qtdatavis3d",
+        "qtdeclarative",
+        "qtdoc",
+        "qtgamepad",
+        "qtgraphicaleffects",
+        "qtimageformats",
+        "qtlocation",
+        "qtmacextras",
+        "qtmultimedia",
+        "qtnetworkauth",
+        "qtpurchasing",
+        "qtquickcontrols",
+        "qtquickcontrols2",
+        "qtscript",
+        "qtscxml",
+        "qtsensors",
+        "qtserialbus",
+        "qtserialport",
+        "qtspeech",
+        "qtsvg",
+        "qttools",
+        "qttranslations",
+        "qtvirtualkeyboard",
+        "qtwayland",
+        "qtwebchannel",
+        "qtwebengine",
+        "qtwebsockets",
+        "qtwebview",
+        "qtwinextras",
+        "qtx11extras",
+        "qtxmlpatterns"]
+    options = dict({
         "shared": [True, False],
         "opengl": ["desktop", "dynamic"],
-        "activeqt": [True, False],
-        "canvas3d": [True, False],
-        "connectivity": [True, False],
-        "gamepad": [True, False],
-        "graphicaleffects": [True, False],
-        "imageformats": [True, False],
-        "location": [True, False],
-        "serialport": [True, False],
-        "svg": [True, False],
-        "tools": [True, False],
-        "translations": [True, False],
-        "webengine": [True, False],
-        "websockets": [True, False],
-        "xmlpatterns": [True, False],
-        "openssl": ["no", "yes", "linked"]
-    }
-    default_options = "shared=True", "opengl=desktop", "activeqt=False", "canvas3d=False", "connectivity=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "translations=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=no"
+        "openssl": ["no", "yes", "linked"],
+        }, **{module[2:]: [True,False] for module in submodules})
+
+    no_copy_source = True
+
+    default_options = ("shared=True", "opengl=desktop", "openssl=no") + tuple(module[2:] + "=False" for module in submodules)
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -72,43 +98,14 @@ class QtConan(ConanFile):
                 self.requires("OpenSSL/1.0.2l@conan/stable")
 
     def source(self):
-        submodules = ["qtbase"]
-
-        if self.options.activeqt:
-            sumodules.append("qtactiveqt")
-        if self.options.canvas3d:
-            submodules.append("qtcanvas3d")
-        if self.options.connectivity:
-            sumodules.append("qtconnectivity")
-        if self.options.gamepad:
-            submodules.append("qtgamepad")
-        if self.options.graphicaleffects:
-            submodules.append("qtgraphicaleffects")
-        if self.options.imageformats:
-            submodules.append("qtimageformats")
-        if self.options.location:
-            submodules.append("qtlocation")
-        if self.options.serialport:
-            submodules.append("qtserialport")
-        if self.options.svg:
-            submodules.append("qtsvg")
-        if self.options.tools:
-            submodules.append("qttools")
-        if self.options.translations:
-            sumodules.append("qttranslations")
-        if self.options.webengine:
-            submodules.append("qtwebengine")
-        if self.options.websockets:
-            submodules.append("qtwebsockets")
-        if self.options.xmlpatterns:
-            submodules.append("qtxmlpatterns")
-
-        self.run("git clone https://code.qt.io/qt/qt5.git")
-        self.run("cd %s && git checkout v%s" % (self.source_dir, self.version))
-        self.run("cd %s && git submodule update --init %s" % (self.source_dir, " ".join(submodules)))
-
-        if self.settings.os != "Windows":
-            self.run("chmod +x ./%s/configure" % self.source_dir)
+        url = "http://download.qt.io/official_releases/qt/{0}/{1}/single/qt-everywhere-opensource-src-{1}"\
+            .format(self.version[:self.version.rfind('.')], self.version)
+        if os_info.is_windows:
+            tools.get("%s.zip" % url)
+        else:
+            SystemPackageTool().install("pv")
+            self.run("wget -qO- %s.tar.xz | pv | tar -xJ " % url)
+        shutil.move("qt-everywhere-opensource-src-%s" % self.version, "qt5")
 
     def build(self):
         """ Define your project building. You decide the way of building it
@@ -122,16 +119,23 @@ class QtConan(ConanFile):
             args.append("-debug")
         else:
             args.append("-release")
+        for module in self.submodules:
+            if not getattr(self.options, module[2:]):
+                args.append("-skip " + module)
 
         if self.settings.os == "Windows":
             if self.settings.compiler == "Visual Studio":
                 self._build_msvc(args)
             else:
+                configurePath = os.path.join(self.build_folder, "qtbase", "tools", "configure")
+                os.makedirs(configurePath)
+                shutil.copy2(os.path.join(self.source_folder, "qt5", "qtbase", "tools", "configure", "configure_pch.h"), configurePath)
                 self._build_mingw(args)
         else:
             self._build_unix(args)
 
     def _build_msvc(self, args):
+        from distutils.spawn import find_executable
         build_command = find_executable("jom.exe")
         if build_command:
             build_args = ["-j", str(cpu_count())]
@@ -177,12 +181,12 @@ class QtConan(ConanFile):
             else:
                 args += ["-openssl-linked"]
 
-            self.run("cd %s && %s && set" % (self.source_dir, vcvars))
-            self.run("cd %s && %s && configure %s"
-                     % (self.source_dir, vcvars, " ".join(args)))
-            self.run("cd %s && %s && %s %s"
-                     % (self.source_dir, vcvars, build_command, " ".join(build_args)))
-            self.run("cd %s && %s && %s install" % (self.source_dir, vcvars, build_command))
+            self.run("%s && set" % vcvars)
+            self.run("%s && %s/qt5/configure %s"
+                     % (vcvars, self.source_folder, " ".join(args)))
+            self.run("%s && %s %s"
+                     % (vcvars, build_command, " ".join(build_args)))
+            self.run("%s && %s install" % (vcvars, build_command))
 
     def _build_mingw(self, args):
         env_build = AutoToolsBuildEnvironment(self)
@@ -203,12 +207,12 @@ class QtConan(ConanFile):
             args += ["-opengl %s" % self.options.opengl,
                      "-platform win32-g++"]
 
-            self.output.info("Using '%s' threads" % str(cpu_count()))
-            self.run("cd %s && configure.bat %s"
-                     % (self.source_dir, " ".join(args)))
-            self.run("cd %s && mingw32-make -j %s"
-                     % (self.source_dir, str(cpu_count())))
-            self.run("cd %s && mingw32-make install" % (self.source_dir))
+            self.output.info("Using '%s' threads" % cpu_count())
+            self.run("%s/qt5/configure.bat %s"
+                     % (self.source_folder, " ".join(args)))
+            self.run("mingw32-make -j %s"
+                     % cpu_count())
+            self.run("mingw32-make install")
 
     def _build_unix(self, args):
         if self.settings.os == "Linux":
@@ -220,10 +224,10 @@ class QtConan(ConanFile):
             if self.settings.arch == "x86":
                 args += ["-platform macx-clang-32"]
 
-        self.output.info("Using '%s' threads" % str(cpu_count()))
-        self.run("cd %s && ./configure %s" % (self.source_dir, " ".join(args)))
-        self.run("cd %s && make -j %s" % (self.source_dir, str(cpu_count())))
-        self.run("cd %s && make install" % (self.source_dir))
+        self.output.info("Using '%s' threads" % cpu_count())
+        self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
+        self.run("make -j %s" % cpu_count())
+        self.run("make install")
 
     def package_info(self):
         libs = ['Concurrent', 'Core', 'DBus',
