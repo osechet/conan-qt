@@ -1,5 +1,5 @@
-
 from conan.packager import ConanMultiPackager
+import copy
 
 def main():
     """
@@ -18,6 +18,9 @@ def main():
             continue
 
         filtered_builds.append([settings, options, env_vars, build_requires])
+        new_options = copy.copy(options)
+        new_options["Qt:xmlpatterns"] = True
+        filtered_builds.append([settings, new_options, env_vars, build_requires])
 
     builder.builds = filtered_builds
     builder.run()
