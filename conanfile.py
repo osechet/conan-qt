@@ -118,7 +118,7 @@ class QtConan(ConanFile):
             submodules.append("qtxmlpatterns")
 
         major = ".".join(self.version.split(".")[:2])
-        self.run("git clone https://code.qt.io/qt/qt5.git")
+        self.run("git clone http://code.qt.io/qt/qt5.git")
         self.run("cd %s && git checkout %s" % (self.source_dir, major))
         self.run("cd %s && perl init-repository --no-update --module-subset=%s"
                  % (self.source_dir, ",".join(submodules)))
