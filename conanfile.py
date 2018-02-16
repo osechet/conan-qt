@@ -49,9 +49,13 @@ class QtConan(ConanFile):
         "webengine": [True, False],
         "websockets": [True, False],
         "xmlpatterns": [True, False],
+        "x11extras": [True, False],
         "openssl": ["no", "yes", "linked"]
     }
-    default_options = "shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=no"
+    default_options = ("shared=True", "opengl=desktop", "canvas3d=False", "gamepad=False",
+        "graphicaleffects=False", "imageformats=False", "location=False",
+        "serialport=False", "svg=False", "tools=False", "webengine=False",
+        "websockets=False", "xmlpatterns=False", "x11extras=True" "openssl=no")
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
@@ -83,6 +87,8 @@ class QtConan(ConanFile):
         if self.settings.os != "Windows":
             del self.options.opengl
             del self.options.openssl
+        if self.settings.os != "Linux":
+            del self.options.x11extras
 
     def requirements(self):
         if self.settings.os == "Windows":
@@ -116,6 +122,8 @@ class QtConan(ConanFile):
             submodules.append("qtwebsockets")
         if self.options.xmlpatterns:
             submodules.append("qtxmlpatterns")
+        if self.options.x11extras:
+            submodules.append("qtx11extras")
 
         major = ".".join(self.version.split(".")[:2])
         self.run("git clone http://code.qt.io/qt/qt5.git")
