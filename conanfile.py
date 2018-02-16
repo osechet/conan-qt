@@ -257,7 +257,7 @@ class QtConan(ConanFile):
         libs = ['Concurrent', 'Core', 'DBus',
                 'Gui', 'Network', 'OpenGL',
                 'Sql', 'Test', 'Widgets', 'Xml']
-        if self.options.x11extras:
+        if self.settings.os == "Linux" and self.options.x11extras:
             libs += ['X11Extras']
 
         self.cpp_info.libs = []
