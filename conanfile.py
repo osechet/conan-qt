@@ -1,8 +1,8 @@
-
 import os
 from distutils.spawn import find_executable
 from conans import AutoToolsBuildEnvironment, ConanFile, tools, VisualStudioBuildEnvironment
 from conans.tools import cpu_count, os_info, SystemPackageTool
+from distutils.util import strtobool
 
 def which(program):
     """
@@ -84,14 +84,14 @@ class QtConan(ConanFile):
             installer.install(" ".join(pack_names)) # Install the package
 
     def config_options(self):
-        if self.settings.os != "Windows":
+        if not os_info.is_windows:
             del self.options.opengl
             del self.options.openssl
-        if self.settings.os != "Linux":
+        if not os_info.is_linux:
             del self.options.x11extras
 
     def requirements(self):
-        if self.settings.os == "Windows":
+        if os_info.is_windows:
             if self.options.openssl == "yes":
                 self.requires("OpenSSL/1.0.2l@conan/stable", dev=True)
             elif self.options.openssl == "linked":
@@ -100,30 +100,11 @@ class QtConan(ConanFile):
     def source(self):
         submodules = ["qtbase"]
 
-        if self.options.canvas3d:
-            submodules.append("qtcanvas3d")
-        if self.options.gamepad:
-            submodules.append("qtgamepad")
-        if self.options.graphicaleffects:
-            submodules.append("qtgraphicaleffects")
-        if self.options.imageformats:
-            submodules.append("qtimageformats")
-        if self.options.location:
-            submodules.append("qtlocation")
-        if self.options.serialport:
-            submodules.append("qtserialport")
-        if self.options.svg:
-            submodules.append("qtsvg")
-        if self.options.tools:
-            submodules.append("qttools")
-        if self.options.webengine:
-            submodules.append("qtwebengine")
-        if self.options.websockets:
-            submodules.append("qtwebsockets")
-        if self.options.xmlpatterns:
-            submodules.append("qtxmlpatterns")
-        if self.settings.os == "Linux" and self.options.x11extras:
-            submodules.append("qtx11extras")
+        for key, value in self.options.items():
+            if key in ["shared"]:
+                continue
+            if (value == "False" or value == "True") and strtobool(value) == True:
+                submodules.append('qt' + key)
 
         major = ".".join(self.version.split(".")[:2])
         self.run("git clone http://code.qt.io/qt/qt5.git")
@@ -133,7 +114,7 @@ class QtConan(ConanFile):
         self.run("cd %s && git checkout v%s && git submodule update"
                  % (self.source_dir, self.version))
 
-        if self.settings.os != "Windows":
+        if not os_info.is_windows:
             self.run("chmod +x ./%s/configure" % self.source_dir)
         else:
             # Fix issue with sh.exe and cmake on Windows
@@ -156,7 +137,7 @@ class QtConan(ConanFile):
         else:
             args.append("-release")
 
-        if self.settings.os == "Windows":
+        if os_info.is_windows:
             if self.settings.compiler == "Visual Studio":
                 self._build_msvc(args)
             else:
@@ -239,7 +220,7 @@ class QtConan(ConanFile):
             self.run("cd %s && mingw32-make install" % (self.source_dir))
 
     def _build_unix(self, args):
-        if self.settings.os == "Linux":
+        if os_info.is_linux:
             args += ["-silent", "-xcb"]
             if self.settings.arch == "x86":
                 args += ["-platform linux-g++-32"]
@@ -257,21 +238,21 @@ class QtConan(ConanFile):
         libs = ['Concurrent', 'Core', 'DBus',
                 'Gui', 'Network', 'OpenGL',
                 'Sql', 'Test', 'Widgets', 'Xml']
-        if self.settings.os == "Linux" and self.options.x11extras:
+        if 'x11extras' in self.options and self.options.x11extras == True:
             libs += ['X11Extras']
 
         self.cpp_info.libs = []
         self.cpp_info.includedirs = ["include"]
         for lib in libs:
-            if self.settings.os == "Windows" and self.settings.build_type == "Debug":
+            if os_info.is_windows and self.settings.build_type == "Debug":
                 suffix = "d"
-            elif self.settings.os == "Macos" and self.settings.build_type == "Debug":
+            elif os_info.is_macos and self.settings.build_type == "Debug":
                 suffix = "_debug"
             else:
                 suffix = ""
             self.cpp_info.libs += ["Qt5%s%s" % (lib, suffix)]
             self.cpp_info.includedirs += ["include/Qt%s" % lib]
 
-        if self.settings.os == "Windows":
+        if os_info.is_windows:
             # Some missing shared libs inside QML and others, but for the test it works
             self.env_info.path.append(os.path.join(self.package_folder, "bin"))
