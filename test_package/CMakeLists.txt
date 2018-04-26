@@ -9,7 +9,7 @@ if(APPLE)
     set(CMAKE_SKIP_RPATH 0)
 endif(APPLE)
 
-configure_file(qt.conf.in ${CMAKE_BINARY_DIR}/bin/qt.conf)
+configure_file(qt.conf.in ${PROJECT_BINARY_DIR}/bin/qt.conf)
 
 find_package(Qt5Core REQUIRED)
 

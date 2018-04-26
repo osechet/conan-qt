@@ -78,6 +78,9 @@ class QtConan(ConanFile):
                     full_pack_names += [pack_name + ":i386"]
                 pack_names = full_pack_names
 
+        if os_info.linux_distro == "debian":
+            pack_names = ["libx11-dev", "libxext-dev", "libglu-dev"]
+
         if pack_names:
             installer = SystemPackageTool()
             installer.update() # Update the package database
@@ -129,7 +132,7 @@ class QtConan(ConanFile):
             to reuse it later in any other project.
         """
         args = ["-opensource", "-confirm-license", "-nomake examples", "-nomake tests",
-                "-prefix %s" % self.package_folder]
+                "-qt-zlib", "-prefix %s" % self.package_folder]
         if not self.options.shared:
             args.insert(0, "-static")
         if self.settings.build_type == "Debug":
