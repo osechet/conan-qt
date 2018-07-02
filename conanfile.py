@@ -26,15 +26,21 @@ class QtConan(ConanFile):
         "svg": [True, False],
         "tools": [True, False],
         "translations": [True, False],
+        "declarative": [True, False],
         "webengine": [True, False],
         "websockets": [True, False],
         "xmlpatterns": [True, False],
         "openssl": ["no", "yes", "linked"]
     }
-    default_options = "shared=True", "opengl=desktop", "activeqt=False", "canvas3d=False", "connectivity=False", "gamepad=False", "graphicaleffects=False", "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", "translations=False", "webengine=False", "websockets=False", "xmlpatterns=False", "openssl=no"
+    default_options = "shared=True", "opengl=desktop", "activeqt=False", \
+        "canvas3d=False", "connectivity=False", "gamepad=False", "graphicaleffects=False", \
+        "imageformats=False", "location=False", "serialport=False", "svg=False", "tools=False", \
+        "translations=False", "declarative=False", "webengine=False", "websockets=False", \
+        "xmlpatterns=False", "openssl=no"
     url = "http://github.com/osechet/conan-qt"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     short_paths = True
+    exports_sources = ["qt.conf"]
 
     def system_requirements(self):
         pack_names = None
@@ -72,14 +78,14 @@ class QtConan(ConanFile):
                 self.requires("OpenSSL/1.0.2l@conan/stable")
 
     def source(self):
-        submodules = ["qtbase"]
+        submodules = ["qtbase", "qtrepotools"]
 
         if self.options.activeqt:
-            sumodules.append("qtactiveqt")
+            submodules.append("qtactiveqt")
         if self.options.canvas3d:
             submodules.append("qtcanvas3d")
         if self.options.connectivity:
-            sumodules.append("qtconnectivity")
+            submodules.append("qtconnectivity")
         if self.options.gamepad:
             submodules.append("qtgamepad")
         if self.options.graphicaleffects:
@@ -95,7 +101,9 @@ class QtConan(ConanFile):
         if self.options.tools:
             submodules.append("qttools")
         if self.options.translations:
-            sumodules.append("qttranslations")
+            submodules.append("qttranslations")
+        if self.options.declarative:
+            submodules.append("qtdeclarative")
         if self.options.webengine:
             submodules.append("qtwebengine")
         if self.options.websockets:
@@ -114,6 +122,9 @@ class QtConan(ConanFile):
         """ Define your project building. You decide the way of building it
             to reuse it later in any other project.
         """
+        if not os.path.exists(self.package_folder):
+            os.makedirs(self.package_folder)
+
         args = ["-opensource", "-confirm-license", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
         if not self.options.shared:
@@ -133,17 +144,18 @@ class QtConan(ConanFile):
 
     def _build_msvc(self, args):
         build_command = find_executable("jom.exe")
-        if build_command:
+        if False:
             build_args = ["-j", str(cpu_count())]
         else:
             build_command = "nmake.exe"
             build_args = []
+         
         self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
         env = {}
-        env.update({'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
-                             '%s/gnuwin32/bin' % self.conanfile_directory,
-                             '%s/qtrepotools/bin' % self.conanfile_directory]})
+        env.update({'PATH': ['%s/qtbase/bin' % self.build_folder,
+                             '%s/gnuwin32/bin' % self.build_folder,
+                             '%s/qtrepotools/bin' % self.build_folder]})
         # it seems not enough to set the vcvars for older versions
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
@@ -162,10 +174,6 @@ class QtConan(ConanFile):
         env_build = VisualStudioBuildEnvironment(self)
         env.update(env_build.vars)
 
-        # Workaround for conan-io/conan#1408
-        for name, value in env.items():
-            if not value:
-                del env[name]
         with tools.environment_append(env):
             vcvars = tools.vcvars_command(self.settings)
 
@@ -177,8 +185,7 @@ class QtConan(ConanFile):
             else:
                 args += ["-openssl-linked"]
 
-            self.run("cd %s && %s && set" % (self.source_dir, vcvars))
-            self.run("cd %s && %s && configure %s"
+            self.run("cd %s && %s && configure.bat %s"
                      % (self.source_dir, vcvars, " ".join(args)))
             self.run("cd %s && %s && %s %s"
                      % (self.source_dir, vcvars, build_command, " ".join(build_args)))
@@ -186,10 +193,10 @@ class QtConan(ConanFile):
 
     def _build_mingw(self, args):
         env_build = AutoToolsBuildEnvironment(self)
-        env = {'PATH': ['%s/bin' % self.conanfile_directory,
-                        '%s/qtbase/bin' % self.conanfile_directory,
-                        '%s/gnuwin32/bin' % self.conanfile_directory,
-                        '%s/qtrepotools/bin' % self.conanfile_directory],
+        env = {'PATH': ['%s/bin' % self.build_folder,
+                        '%s/qtbase/bin' % self.build_folder,
+                        '%s/gnuwin32/bin' % self.build_folder,
+                        '%s/qtrepotools/bin' % self.build_folder],
                'QMAKESPEC': 'win32-g++'}
         env.update(env_build.vars)
         with tools.environment_append(env):
@@ -224,6 +231,11 @@ class QtConan(ConanFile):
         self.run("cd %s && ./configure %s" % (self.source_dir, " ".join(args)))
         self.run("cd %s && make -j %s" % (self.source_dir, str(cpu_count())))
         self.run("cd %s && make install" % (self.source_dir))
+
+    def package(self):
+        # Qt's installation prefix is hardcoded during the build. In order to
+        # make this package relocatable, we need to provide qt.conf
+        self.copy("qt.conf", dst="bin", keep_path=False)
 
     def package_info(self):
         libs = ['Concurrent', 'Core', 'DBus',
