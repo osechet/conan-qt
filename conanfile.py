@@ -122,6 +122,9 @@ class QtConan(ConanFile):
         """ Define your project building. You decide the way of building it
             to reuse it later in any other project.
         """
+        if not os.path.exists(self.package_folder):
+            os.makedirs(self.package_folder)
+
         args = ["-opensource", "-confirm-license", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
         if not self.options.shared:
@@ -141,17 +144,18 @@ class QtConan(ConanFile):
 
     def _build_msvc(self, args):
         build_command = find_executable("jom.exe")
-        if build_command:
+        if False:
             build_args = ["-j", str(cpu_count())]
         else:
             build_command = "nmake.exe"
             build_args = []
+         
         self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
         env = {}
-        env.update({'PATH': ['%s/qtbase/bin' % self.conanfile_directory,
-                             '%s/gnuwin32/bin' % self.conanfile_directory,
-                             '%s/qtrepotools/bin' % self.conanfile_directory]})
+        env.update({'PATH': ['%s/qtbase/bin' % self.build_folder,
+                             '%s/gnuwin32/bin' % self.build_folder,
+                             '%s/qtrepotools/bin' % self.build_folder]})
         # it seems not enough to set the vcvars for older versions
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
@@ -189,10 +193,10 @@ class QtConan(ConanFile):
 
     def _build_mingw(self, args):
         env_build = AutoToolsBuildEnvironment(self)
-        env = {'PATH': ['%s/bin' % self.conanfile_directory,
-                        '%s/qtbase/bin' % self.conanfile_directory,
-                        '%s/gnuwin32/bin' % self.conanfile_directory,
-                        '%s/qtrepotools/bin' % self.conanfile_directory],
+        env = {'PATH': ['%s/bin' % self.build_folder,
+                        '%s/qtbase/bin' % self.build_folder,
+                        '%s/gnuwin32/bin' % self.build_folder,
+                        '%s/qtrepotools/bin' % self.build_folder],
                'QMAKESPEC': 'win32-g++'}
         env.update(env_build.vars)
         with tools.environment_append(env):
@@ -232,7 +236,6 @@ class QtConan(ConanFile):
         # Qt's installation prefix is hardcoded during the build. In order to
         # make this package relocatable, we need to provide qt.conf
         self.copy("qt.conf", dst="bin", keep_path=False)
-
 
     def package_info(self):
         libs = ['Concurrent', 'Core', 'DBus',
